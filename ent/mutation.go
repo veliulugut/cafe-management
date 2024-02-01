@@ -4,7 +4,9 @@ package ent
 
 import (
 	"cafe-management/ent/predicate"
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
+	"cafe-management/ent/tables_type"
 	"cafe-management/ent/user"
 	"context"
 	"errors"
@@ -25,9 +27,738 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeTables = "Tables"
-	TypeUser   = "User"
+	TypeReservation = "Reservation"
+	TypeTables      = "Tables"
+	TypeTablesType  = "Tables_type"
+	TypeUser        = "User"
 )
+
+// ReservationMutation represents an operation that mutates the Reservation nodes in the graph.
+type ReservationMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	full_name     *string
+	created_at    *time.Time
+	updated_at    *time.Time
+	table_id      *int
+	addtable_id   *int
+	phone_number  *string
+	start_time    *time.Time
+	end_time      *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Reservation, error)
+	predicates    []predicate.Reservation
+}
+
+var _ ent.Mutation = (*ReservationMutation)(nil)
+
+// reservationOption allows management of the mutation configuration using functional options.
+type reservationOption func(*ReservationMutation)
+
+// newReservationMutation creates new mutation for the Reservation entity.
+func newReservationMutation(c config, op Op, opts ...reservationOption) *ReservationMutation {
+	m := &ReservationMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeReservation,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withReservationID sets the ID field of the mutation.
+func withReservationID(id int) reservationOption {
+	return func(m *ReservationMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Reservation
+		)
+		m.oldValue = func(ctx context.Context) (*Reservation, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Reservation.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withReservation sets the old Reservation of the mutation.
+func withReservation(node *Reservation) reservationOption {
+	return func(m *ReservationMutation) {
+		m.oldValue = func(context.Context) (*Reservation, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ReservationMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ReservationMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ReservationMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ReservationMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Reservation.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetFullName sets the "full_name" field.
+func (m *ReservationMutation) SetFullName(s string) {
+	m.full_name = &s
+}
+
+// FullName returns the value of the "full_name" field in the mutation.
+func (m *ReservationMutation) FullName() (r string, exists bool) {
+	v := m.full_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFullName returns the old "full_name" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldFullName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFullName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFullName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFullName: %w", err)
+	}
+	return oldValue.FullName, nil
+}
+
+// ClearFullName clears the value of the "full_name" field.
+func (m *ReservationMutation) ClearFullName() {
+	m.full_name = nil
+	m.clearedFields[reservation.FieldFullName] = struct{}{}
+}
+
+// FullNameCleared returns if the "full_name" field was cleared in this mutation.
+func (m *ReservationMutation) FullNameCleared() bool {
+	_, ok := m.clearedFields[reservation.FieldFullName]
+	return ok
+}
+
+// ResetFullName resets all changes to the "full_name" field.
+func (m *ReservationMutation) ResetFullName() {
+	m.full_name = nil
+	delete(m.clearedFields, reservation.FieldFullName)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ReservationMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ReservationMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ReservationMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ReservationMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ReservationMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ReservationMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetTableID sets the "table_id" field.
+func (m *ReservationMutation) SetTableID(i int) {
+	m.table_id = &i
+	m.addtable_id = nil
+}
+
+// TableID returns the value of the "table_id" field in the mutation.
+func (m *ReservationMutation) TableID() (r int, exists bool) {
+	v := m.table_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTableID returns the old "table_id" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldTableID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTableID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTableID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTableID: %w", err)
+	}
+	return oldValue.TableID, nil
+}
+
+// AddTableID adds i to the "table_id" field.
+func (m *ReservationMutation) AddTableID(i int) {
+	if m.addtable_id != nil {
+		*m.addtable_id += i
+	} else {
+		m.addtable_id = &i
+	}
+}
+
+// AddedTableID returns the value that was added to the "table_id" field in this mutation.
+func (m *ReservationMutation) AddedTableID() (r int, exists bool) {
+	v := m.addtable_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTableID resets all changes to the "table_id" field.
+func (m *ReservationMutation) ResetTableID() {
+	m.table_id = nil
+	m.addtable_id = nil
+}
+
+// SetPhoneNumber sets the "phone_number" field.
+func (m *ReservationMutation) SetPhoneNumber(s string) {
+	m.phone_number = &s
+}
+
+// PhoneNumber returns the value of the "phone_number" field in the mutation.
+func (m *ReservationMutation) PhoneNumber() (r string, exists bool) {
+	v := m.phone_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPhoneNumber returns the old "phone_number" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldPhoneNumber(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPhoneNumber is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPhoneNumber requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPhoneNumber: %w", err)
+	}
+	return oldValue.PhoneNumber, nil
+}
+
+// ClearPhoneNumber clears the value of the "phone_number" field.
+func (m *ReservationMutation) ClearPhoneNumber() {
+	m.phone_number = nil
+	m.clearedFields[reservation.FieldPhoneNumber] = struct{}{}
+}
+
+// PhoneNumberCleared returns if the "phone_number" field was cleared in this mutation.
+func (m *ReservationMutation) PhoneNumberCleared() bool {
+	_, ok := m.clearedFields[reservation.FieldPhoneNumber]
+	return ok
+}
+
+// ResetPhoneNumber resets all changes to the "phone_number" field.
+func (m *ReservationMutation) ResetPhoneNumber() {
+	m.phone_number = nil
+	delete(m.clearedFields, reservation.FieldPhoneNumber)
+}
+
+// SetStartTime sets the "start_time" field.
+func (m *ReservationMutation) SetStartTime(t time.Time) {
+	m.start_time = &t
+}
+
+// StartTime returns the value of the "start_time" field in the mutation.
+func (m *ReservationMutation) StartTime() (r time.Time, exists bool) {
+	v := m.start_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartTime returns the old "start_time" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldStartTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartTime: %w", err)
+	}
+	return oldValue.StartTime, nil
+}
+
+// ResetStartTime resets all changes to the "start_time" field.
+func (m *ReservationMutation) ResetStartTime() {
+	m.start_time = nil
+}
+
+// SetEndTime sets the "end_time" field.
+func (m *ReservationMutation) SetEndTime(t time.Time) {
+	m.end_time = &t
+}
+
+// EndTime returns the value of the "end_time" field in the mutation.
+func (m *ReservationMutation) EndTime() (r time.Time, exists bool) {
+	v := m.end_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndTime returns the old "end_time" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldEndTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEndTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEndTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndTime: %w", err)
+	}
+	return oldValue.EndTime, nil
+}
+
+// ResetEndTime resets all changes to the "end_time" field.
+func (m *ReservationMutation) ResetEndTime() {
+	m.end_time = nil
+}
+
+// Where appends a list predicates to the ReservationMutation builder.
+func (m *ReservationMutation) Where(ps ...predicate.Reservation) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ReservationMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ReservationMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Reservation, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ReservationMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ReservationMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Reservation).
+func (m *ReservationMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ReservationMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.full_name != nil {
+		fields = append(fields, reservation.FieldFullName)
+	}
+	if m.created_at != nil {
+		fields = append(fields, reservation.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, reservation.FieldUpdatedAt)
+	}
+	if m.table_id != nil {
+		fields = append(fields, reservation.FieldTableID)
+	}
+	if m.phone_number != nil {
+		fields = append(fields, reservation.FieldPhoneNumber)
+	}
+	if m.start_time != nil {
+		fields = append(fields, reservation.FieldStartTime)
+	}
+	if m.end_time != nil {
+		fields = append(fields, reservation.FieldEndTime)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ReservationMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case reservation.FieldFullName:
+		return m.FullName()
+	case reservation.FieldCreatedAt:
+		return m.CreatedAt()
+	case reservation.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case reservation.FieldTableID:
+		return m.TableID()
+	case reservation.FieldPhoneNumber:
+		return m.PhoneNumber()
+	case reservation.FieldStartTime:
+		return m.StartTime()
+	case reservation.FieldEndTime:
+		return m.EndTime()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ReservationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case reservation.FieldFullName:
+		return m.OldFullName(ctx)
+	case reservation.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case reservation.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case reservation.FieldTableID:
+		return m.OldTableID(ctx)
+	case reservation.FieldPhoneNumber:
+		return m.OldPhoneNumber(ctx)
+	case reservation.FieldStartTime:
+		return m.OldStartTime(ctx)
+	case reservation.FieldEndTime:
+		return m.OldEndTime(ctx)
+	}
+	return nil, fmt.Errorf("unknown Reservation field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReservationMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case reservation.FieldFullName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFullName(v)
+		return nil
+	case reservation.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case reservation.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case reservation.FieldTableID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTableID(v)
+		return nil
+	case reservation.FieldPhoneNumber:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPhoneNumber(v)
+		return nil
+	case reservation.FieldStartTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartTime(v)
+		return nil
+	case reservation.FieldEndTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndTime(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Reservation field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ReservationMutation) AddedFields() []string {
+	var fields []string
+	if m.addtable_id != nil {
+		fields = append(fields, reservation.FieldTableID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ReservationMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case reservation.FieldTableID:
+		return m.AddedTableID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReservationMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case reservation.FieldTableID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTableID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Reservation numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ReservationMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(reservation.FieldFullName) {
+		fields = append(fields, reservation.FieldFullName)
+	}
+	if m.FieldCleared(reservation.FieldPhoneNumber) {
+		fields = append(fields, reservation.FieldPhoneNumber)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ReservationMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ReservationMutation) ClearField(name string) error {
+	switch name {
+	case reservation.FieldFullName:
+		m.ClearFullName()
+		return nil
+	case reservation.FieldPhoneNumber:
+		m.ClearPhoneNumber()
+		return nil
+	}
+	return fmt.Errorf("unknown Reservation nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ReservationMutation) ResetField(name string) error {
+	switch name {
+	case reservation.FieldFullName:
+		m.ResetFullName()
+		return nil
+	case reservation.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case reservation.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case reservation.FieldTableID:
+		m.ResetTableID()
+		return nil
+	case reservation.FieldPhoneNumber:
+		m.ResetPhoneNumber()
+		return nil
+	case reservation.FieldStartTime:
+		m.ResetStartTime()
+		return nil
+	case reservation.FieldEndTime:
+		m.ResetEndTime()
+		return nil
+	}
+	return fmt.Errorf("unknown Reservation field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ReservationMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ReservationMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ReservationMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ReservationMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ReservationMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ReservationMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ReservationMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Reservation unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ReservationMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Reservation edge %s", name)
+}
 
 // TablesMutation represents an operation that mutates the Tables nodes in the graph.
 type TablesMutation struct {
@@ -692,6 +1423,422 @@ func (m *TablesMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *TablesMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Tables edge %s", name)
+}
+
+// TablesTypeMutation represents an operation that mutates the Tables_type nodes in the graph.
+type TablesTypeMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	tables_id     *int
+	addtables_id  *int
+	name          *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Tables_type, error)
+	predicates    []predicate.Tables_type
+}
+
+var _ ent.Mutation = (*TablesTypeMutation)(nil)
+
+// tablesTypeOption allows management of the mutation configuration using functional options.
+type tablesTypeOption func(*TablesTypeMutation)
+
+// newTablesTypeMutation creates new mutation for the Tables_type entity.
+func newTablesTypeMutation(c config, op Op, opts ...tablesTypeOption) *TablesTypeMutation {
+	m := &TablesTypeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTablesType,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTables_typeID sets the ID field of the mutation.
+func withTables_typeID(id int) tablesTypeOption {
+	return func(m *TablesTypeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Tables_type
+		)
+		m.oldValue = func(ctx context.Context) (*Tables_type, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Tables_type.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTables_type sets the old Tables_type of the mutation.
+func withTables_type(node *Tables_type) tablesTypeOption {
+	return func(m *TablesTypeMutation) {
+		m.oldValue = func(context.Context) (*Tables_type, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TablesTypeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TablesTypeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TablesTypeMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TablesTypeMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Tables_type.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTablesID sets the "tables_id" field.
+func (m *TablesTypeMutation) SetTablesID(i int) {
+	m.tables_id = &i
+	m.addtables_id = nil
+}
+
+// TablesID returns the value of the "tables_id" field in the mutation.
+func (m *TablesTypeMutation) TablesID() (r int, exists bool) {
+	v := m.tables_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTablesID returns the old "tables_id" field's value of the Tables_type entity.
+// If the Tables_type object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TablesTypeMutation) OldTablesID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTablesID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTablesID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTablesID: %w", err)
+	}
+	return oldValue.TablesID, nil
+}
+
+// AddTablesID adds i to the "tables_id" field.
+func (m *TablesTypeMutation) AddTablesID(i int) {
+	if m.addtables_id != nil {
+		*m.addtables_id += i
+	} else {
+		m.addtables_id = &i
+	}
+}
+
+// AddedTablesID returns the value that was added to the "tables_id" field in this mutation.
+func (m *TablesTypeMutation) AddedTablesID() (r int, exists bool) {
+	v := m.addtables_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTablesID resets all changes to the "tables_id" field.
+func (m *TablesTypeMutation) ResetTablesID() {
+	m.tables_id = nil
+	m.addtables_id = nil
+}
+
+// SetName sets the "name" field.
+func (m *TablesTypeMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *TablesTypeMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Tables_type entity.
+// If the Tables_type object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TablesTypeMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *TablesTypeMutation) ResetName() {
+	m.name = nil
+}
+
+// Where appends a list predicates to the TablesTypeMutation builder.
+func (m *TablesTypeMutation) Where(ps ...predicate.Tables_type) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TablesTypeMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TablesTypeMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Tables_type, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TablesTypeMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TablesTypeMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Tables_type).
+func (m *TablesTypeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TablesTypeMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.tables_id != nil {
+		fields = append(fields, tables_type.FieldTablesID)
+	}
+	if m.name != nil {
+		fields = append(fields, tables_type.FieldName)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TablesTypeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case tables_type.FieldTablesID:
+		return m.TablesID()
+	case tables_type.FieldName:
+		return m.Name()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TablesTypeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case tables_type.FieldTablesID:
+		return m.OldTablesID(ctx)
+	case tables_type.FieldName:
+		return m.OldName(ctx)
+	}
+	return nil, fmt.Errorf("unknown Tables_type field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TablesTypeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case tables_type.FieldTablesID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTablesID(v)
+		return nil
+	case tables_type.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Tables_type field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TablesTypeMutation) AddedFields() []string {
+	var fields []string
+	if m.addtables_id != nil {
+		fields = append(fields, tables_type.FieldTablesID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TablesTypeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case tables_type.FieldTablesID:
+		return m.AddedTablesID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TablesTypeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case tables_type.FieldTablesID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTablesID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Tables_type numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TablesTypeMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TablesTypeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TablesTypeMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Tables_type nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TablesTypeMutation) ResetField(name string) error {
+	switch name {
+	case tables_type.FieldTablesID:
+		m.ResetTablesID()
+		return nil
+	case tables_type.FieldName:
+		m.ResetName()
+		return nil
+	}
+	return fmt.Errorf("unknown Tables_type field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TablesTypeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TablesTypeMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TablesTypeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TablesTypeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TablesTypeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TablesTypeMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TablesTypeMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Tables_type unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TablesTypeMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Tables_type edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

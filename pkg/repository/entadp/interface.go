@@ -4,6 +4,7 @@ import (
 	"cafe-management/ent"
 	"cafe-management/pkg/repository/dto"
 	"context"
+	"time"
 )
 
 type UserRepository interface {
@@ -19,4 +20,18 @@ type TablesRepository interface {
 	DeleteTable(ctx context.Context, id int) error
 	UpdateTable(ctx context.Context, id int, c *dto.Tables) error
 	ListTable(ctx context.Context) ([]*ent.Tables, error)
+}
+
+type TablesTypeRepostiory interface {
+	CreateTableType(ctx context.Context, c *dto.TablesType) error
+	DeleteTableType(ctx context.Context, id int) error
+	UpdateTableType(ctx context.Context, id int, c *dto.TablesType) error
+}
+
+type ReservationRepository interface {
+	CreateReservation(ctx context.Context, c *dto.Reservation) error
+	DeleteReservation(ctx context.Context, id int) error
+	UpdateReservation(ctx context.Context, id int, c *dto.Reservation) error
+	GetByNameReservation(ctx context.Context, name string) (*dto.Reservation, error)
+	CheckAvailability(ctx context.Context, datetime time.Time, tableID int) (bool, error)
 }

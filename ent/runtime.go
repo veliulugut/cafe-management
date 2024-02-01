@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/schema"
 	"cafe-management/ent/tables"
 	"cafe-management/ent/user"
@@ -13,6 +14,24 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	reservationFields := schema.Reservation{}.Fields()
+	_ = reservationFields
+	// reservationDescCreatedAt is the schema descriptor for created_at field.
+	reservationDescCreatedAt := reservationFields[1].Descriptor()
+	// reservation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	reservation.DefaultCreatedAt = reservationDescCreatedAt.Default.(time.Time)
+	// reservationDescUpdatedAt is the schema descriptor for updated_at field.
+	reservationDescUpdatedAt := reservationFields[2].Descriptor()
+	// reservation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	reservation.DefaultUpdatedAt = reservationDescUpdatedAt.Default.(time.Time)
+	// reservationDescStartTime is the schema descriptor for start_time field.
+	reservationDescStartTime := reservationFields[5].Descriptor()
+	// reservation.DefaultStartTime holds the default value on creation for the start_time field.
+	reservation.DefaultStartTime = reservationDescStartTime.Default.(time.Time)
+	// reservationDescEndTime is the schema descriptor for end_time field.
+	reservationDescEndTime := reservationFields[6].Descriptor()
+	// reservation.DefaultEndTime holds the default value on creation for the end_time field.
+	reservation.DefaultEndTime = reservationDescEndTime.Default.(time.Time)
 	tablesFields := schema.Tables{}.Fields()
 	_ = tablesFields
 	// tablesDescCreatedAt is the schema descriptor for created_at field.

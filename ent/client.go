@@ -11,7 +11,9 @@ import (
 
 	"cafe-management/ent/migrate"
 
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
+	"cafe-management/ent/tables_type"
 	"cafe-management/ent/user"
 
 	"entgo.io/ent"
@@ -26,8 +28,12 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Reservation is the client for interacting with the Reservation builders.
+	Reservation *ReservationClient
 	// Tables is the client for interacting with the Tables builders.
 	Tables *TablesClient
+	// Tables_type is the client for interacting with the Tables_type builders.
+	Tables_type *TablesTypeClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -41,7 +47,9 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Reservation = NewReservationClient(c.config)
 	c.Tables = NewTablesClient(c.config)
+	c.Tables_type = NewTablesTypeClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -133,10 +141,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Tables: NewTablesClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		Reservation: NewReservationClient(cfg),
+		Tables:      NewTablesClient(cfg),
+		Tables_type: NewTablesTypeClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
@@ -154,17 +164,19 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Tables: NewTablesClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		Reservation: NewReservationClient(cfg),
+		Tables:      NewTablesClient(cfg),
+		Tables_type: NewTablesTypeClient(cfg),
+		User:        NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Tables.
+//		Reservation.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -186,26 +198,167 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Reservation.Use(hooks...)
 	c.Tables.Use(hooks...)
+	c.Tables_type.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Reservation.Intercept(interceptors...)
 	c.Tables.Intercept(interceptors...)
+	c.Tables_type.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *ReservationMutation:
+		return c.Reservation.mutate(ctx, m)
 	case *TablesMutation:
 		return c.Tables.mutate(ctx, m)
+	case *TablesTypeMutation:
+		return c.Tables_type.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// ReservationClient is a client for the Reservation schema.
+type ReservationClient struct {
+	config
+}
+
+// NewReservationClient returns a client for the Reservation from the given config.
+func NewReservationClient(c config) *ReservationClient {
+	return &ReservationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `reservation.Hooks(f(g(h())))`.
+func (c *ReservationClient) Use(hooks ...Hook) {
+	c.hooks.Reservation = append(c.hooks.Reservation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `reservation.Intercept(f(g(h())))`.
+func (c *ReservationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Reservation = append(c.inters.Reservation, interceptors...)
+}
+
+// Create returns a builder for creating a Reservation entity.
+func (c *ReservationClient) Create() *ReservationCreate {
+	mutation := newReservationMutation(c.config, OpCreate)
+	return &ReservationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Reservation entities.
+func (c *ReservationClient) CreateBulk(builders ...*ReservationCreate) *ReservationCreateBulk {
+	return &ReservationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ReservationClient) MapCreateBulk(slice any, setFunc func(*ReservationCreate, int)) *ReservationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ReservationCreateBulk{err: fmt.Errorf("calling to ReservationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ReservationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ReservationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Reservation.
+func (c *ReservationClient) Update() *ReservationUpdate {
+	mutation := newReservationMutation(c.config, OpUpdate)
+	return &ReservationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ReservationClient) UpdateOne(r *Reservation) *ReservationUpdateOne {
+	mutation := newReservationMutation(c.config, OpUpdateOne, withReservation(r))
+	return &ReservationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ReservationClient) UpdateOneID(id int) *ReservationUpdateOne {
+	mutation := newReservationMutation(c.config, OpUpdateOne, withReservationID(id))
+	return &ReservationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Reservation.
+func (c *ReservationClient) Delete() *ReservationDelete {
+	mutation := newReservationMutation(c.config, OpDelete)
+	return &ReservationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ReservationClient) DeleteOne(r *Reservation) *ReservationDeleteOne {
+	return c.DeleteOneID(r.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ReservationClient) DeleteOneID(id int) *ReservationDeleteOne {
+	builder := c.Delete().Where(reservation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ReservationDeleteOne{builder}
+}
+
+// Query returns a query builder for Reservation.
+func (c *ReservationClient) Query() *ReservationQuery {
+	return &ReservationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeReservation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Reservation entity by its id.
+func (c *ReservationClient) Get(ctx context.Context, id int) (*Reservation, error) {
+	return c.Query().Where(reservation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ReservationClient) GetX(ctx context.Context, id int) *Reservation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ReservationClient) Hooks() []Hook {
+	return c.hooks.Reservation
+}
+
+// Interceptors returns the client interceptors.
+func (c *ReservationClient) Interceptors() []Interceptor {
+	return c.inters.Reservation
+}
+
+func (c *ReservationClient) mutate(ctx context.Context, m *ReservationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ReservationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ReservationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ReservationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ReservationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Reservation mutation op: %q", m.Op())
 	}
 }
 
@@ -339,6 +492,139 @@ func (c *TablesClient) mutate(ctx context.Context, m *TablesMutation) (Value, er
 		return (&TablesDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Tables mutation op: %q", m.Op())
+	}
+}
+
+// TablesTypeClient is a client for the Tables_type schema.
+type TablesTypeClient struct {
+	config
+}
+
+// NewTablesTypeClient returns a client for the Tables_type from the given config.
+func NewTablesTypeClient(c config) *TablesTypeClient {
+	return &TablesTypeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `tables_type.Hooks(f(g(h())))`.
+func (c *TablesTypeClient) Use(hooks ...Hook) {
+	c.hooks.Tables_type = append(c.hooks.Tables_type, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `tables_type.Intercept(f(g(h())))`.
+func (c *TablesTypeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Tables_type = append(c.inters.Tables_type, interceptors...)
+}
+
+// Create returns a builder for creating a Tables_type entity.
+func (c *TablesTypeClient) Create() *TablesTypeCreate {
+	mutation := newTablesTypeMutation(c.config, OpCreate)
+	return &TablesTypeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Tables_type entities.
+func (c *TablesTypeClient) CreateBulk(builders ...*TablesTypeCreate) *TablesTypeCreateBulk {
+	return &TablesTypeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TablesTypeClient) MapCreateBulk(slice any, setFunc func(*TablesTypeCreate, int)) *TablesTypeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TablesTypeCreateBulk{err: fmt.Errorf("calling to TablesTypeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TablesTypeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TablesTypeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Tables_type.
+func (c *TablesTypeClient) Update() *TablesTypeUpdate {
+	mutation := newTablesTypeMutation(c.config, OpUpdate)
+	return &TablesTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TablesTypeClient) UpdateOne(tt *Tables_type) *TablesTypeUpdateOne {
+	mutation := newTablesTypeMutation(c.config, OpUpdateOne, withTables_type(tt))
+	return &TablesTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TablesTypeClient) UpdateOneID(id int) *TablesTypeUpdateOne {
+	mutation := newTablesTypeMutation(c.config, OpUpdateOne, withTables_typeID(id))
+	return &TablesTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Tables_type.
+func (c *TablesTypeClient) Delete() *TablesTypeDelete {
+	mutation := newTablesTypeMutation(c.config, OpDelete)
+	return &TablesTypeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TablesTypeClient) DeleteOne(tt *Tables_type) *TablesTypeDeleteOne {
+	return c.DeleteOneID(tt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TablesTypeClient) DeleteOneID(id int) *TablesTypeDeleteOne {
+	builder := c.Delete().Where(tables_type.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TablesTypeDeleteOne{builder}
+}
+
+// Query returns a query builder for Tables_type.
+func (c *TablesTypeClient) Query() *TablesTypeQuery {
+	return &TablesTypeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTablesType},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Tables_type entity by its id.
+func (c *TablesTypeClient) Get(ctx context.Context, id int) (*Tables_type, error) {
+	return c.Query().Where(tables_type.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TablesTypeClient) GetX(ctx context.Context, id int) *Tables_type {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *TablesTypeClient) Hooks() []Hook {
+	return c.hooks.Tables_type
+}
+
+// Interceptors returns the client interceptors.
+func (c *TablesTypeClient) Interceptors() []Interceptor {
+	return c.inters.Tables_type
+}
+
+func (c *TablesTypeClient) mutate(ctx context.Context, m *TablesTypeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TablesTypeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TablesTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TablesTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TablesTypeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Tables_type mutation op: %q", m.Op())
 	}
 }
 
@@ -478,10 +764,10 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Tables, User []ent.Hook
+		Reservation, Tables, Tables_type, User []ent.Hook
 	}
 	inters struct {
-		Tables, User []ent.Interceptor
+		Reservation, Tables, Tables_type, User []ent.Interceptor
 	}
 )
 

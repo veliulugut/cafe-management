@@ -8,6 +8,23 @@ import (
 )
 
 var (
+	// ReservationsColumns holds the columns for the "reservations" table.
+	ReservationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "full_name", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "table_id", Type: field.TypeInt},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true},
+		{Name: "start_time", Type: field.TypeTime},
+		{Name: "end_time", Type: field.TypeTime},
+	}
+	// ReservationsTable holds the schema information for the "reservations" table.
+	ReservationsTable = &schema.Table{
+		Name:       "reservations",
+		Columns:    ReservationsColumns,
+		PrimaryKey: []*schema.Column{ReservationsColumns[0]},
+	}
 	// TablesColumns holds the columns for the "tables" table.
 	TablesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -23,6 +40,18 @@ var (
 		Name:       "tables",
 		Columns:    TablesColumns,
 		PrimaryKey: []*schema.Column{TablesColumns[0]},
+	}
+	// TablesTypesColumns holds the columns for the "tables_types" table.
+	TablesTypesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tables_id", Type: field.TypeInt},
+		{Name: "name", Type: field.TypeString},
+	}
+	// TablesTypesTable holds the schema information for the "tables_types" table.
+	TablesTypesTable = &schema.Table{
+		Name:       "tables_types",
+		Columns:    TablesTypesColumns,
+		PrimaryKey: []*schema.Column{TablesTypesColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -45,7 +74,9 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ReservationsTable,
 		TablesTable,
+		TablesTypesTable,
 		UsersTable,
 	}
 )

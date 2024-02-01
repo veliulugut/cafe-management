@@ -8,6 +8,18 @@ import (
 	"fmt"
 )
 
+// The ReservationFunc type is an adapter to allow the use of ordinary
+// function as Reservation mutator.
+type ReservationFunc func(context.Context, *ent.ReservationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ReservationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ReservationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ReservationMutation", m)
+}
+
 // The TablesFunc type is an adapter to allow the use of ordinary
 // function as Tables mutator.
 type TablesFunc func(context.Context, *ent.TablesMutation) (ent.Value, error)
@@ -18,6 +30,18 @@ func (f TablesFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TablesMutation", m)
+}
+
+// The Tables_typeFunc type is an adapter to allow the use of ordinary
+// function as Tables_type mutator.
+type Tables_typeFunc func(context.Context, *ent.TablesTypeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f Tables_typeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TablesTypeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TablesTypeMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

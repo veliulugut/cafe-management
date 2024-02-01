@@ -6,8 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Reservation is the predicate function for reservation builders.
+type Reservation func(*sql.Selector)
+
 // Tables is the predicate function for tables builders.
 type Tables func(*sql.Selector)
+
+// Tables_type is the predicate function for tables_type builders.
+type Tables_type func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

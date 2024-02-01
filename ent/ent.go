@@ -3,7 +3,9 @@
 package ent
 
 import (
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
+	"cafe-management/ent/tables_type"
 	"cafe-management/ent/user"
 	"context"
 	"errors"
@@ -74,8 +76,10 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			tables.Table: tables.ValidColumn,
-			user.Table:   user.ValidColumn,
+			reservation.Table: reservation.ValidColumn,
+			tables.Table:      tables.ValidColumn,
+			tables_type.Table: tables_type.ValidColumn,
+			user.Table:        user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
