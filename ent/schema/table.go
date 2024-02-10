@@ -25,6 +25,7 @@ func (Tables) Fields() []ent.Field {
 	}
 }
 
+// table_id reservation table_id olarak kayıtlı olacak
 // Edges of the Tables.
 func (Tables) Edges() []ent.Edge {
 	return []ent.Edge{

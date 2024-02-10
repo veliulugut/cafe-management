@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Price is the predicate function for price builders.
+type Price func(*sql.Selector)
+
 // Reservation is the predicate function for reservation builders.
 type Reservation func(*sql.Selector)
 

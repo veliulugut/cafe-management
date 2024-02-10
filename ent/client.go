@@ -11,6 +11,7 @@ import (
 
 	"cafe-management/ent/migrate"
 
+	"cafe-management/ent/price"
 	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
 	"cafe-management/ent/tables_type"
@@ -29,6 +30,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Price is the client for interacting with the Price builders.
+	Price *PriceClient
 	// Reservation is the client for interacting with the Reservation builders.
 	Reservation *ReservationClient
 	// Tables is the client for interacting with the Tables builders.
@@ -48,6 +51,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Price = NewPriceClient(c.config)
 	c.Reservation = NewReservationClient(c.config)
 	c.Tables = NewTablesClient(c.config)
 	c.Tables_type = NewTablesTypeClient(c.config)
@@ -144,6 +148,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:         ctx,
 		config:      cfg,
+		Price:       NewPriceClient(cfg),
 		Reservation: NewReservationClient(cfg),
 		Tables:      NewTablesClient(cfg),
 		Tables_type: NewTablesTypeClient(cfg),
@@ -167,6 +172,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:         ctx,
 		config:      cfg,
+		Price:       NewPriceClient(cfg),
 		Reservation: NewReservationClient(cfg),
 		Tables:      NewTablesClient(cfg),
 		Tables_type: NewTablesTypeClient(cfg),
@@ -177,7 +183,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Reservation.
+//		Price.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -199,6 +205,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Price.Use(hooks...)
 	c.Reservation.Use(hooks...)
 	c.Tables.Use(hooks...)
 	c.Tables_type.Use(hooks...)
@@ -208,6 +215,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Price.Intercept(interceptors...)
 	c.Reservation.Intercept(interceptors...)
 	c.Tables.Intercept(interceptors...)
 	c.Tables_type.Intercept(interceptors...)
@@ -217,6 +225,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *PriceMutation:
+		return c.Price.mutate(ctx, m)
 	case *ReservationMutation:
 		return c.Reservation.mutate(ctx, m)
 	case *TablesMutation:
@@ -227,6 +237,139 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// PriceClient is a client for the Price schema.
+type PriceClient struct {
+	config
+}
+
+// NewPriceClient returns a client for the Price from the given config.
+func NewPriceClient(c config) *PriceClient {
+	return &PriceClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `price.Hooks(f(g(h())))`.
+func (c *PriceClient) Use(hooks ...Hook) {
+	c.hooks.Price = append(c.hooks.Price, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `price.Intercept(f(g(h())))`.
+func (c *PriceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Price = append(c.inters.Price, interceptors...)
+}
+
+// Create returns a builder for creating a Price entity.
+func (c *PriceClient) Create() *PriceCreate {
+	mutation := newPriceMutation(c.config, OpCreate)
+	return &PriceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Price entities.
+func (c *PriceClient) CreateBulk(builders ...*PriceCreate) *PriceCreateBulk {
+	return &PriceCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PriceClient) MapCreateBulk(slice any, setFunc func(*PriceCreate, int)) *PriceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PriceCreateBulk{err: fmt.Errorf("calling to PriceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PriceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PriceCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Price.
+func (c *PriceClient) Update() *PriceUpdate {
+	mutation := newPriceMutation(c.config, OpUpdate)
+	return &PriceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PriceClient) UpdateOne(pr *Price) *PriceUpdateOne {
+	mutation := newPriceMutation(c.config, OpUpdateOne, withPrice(pr))
+	return &PriceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PriceClient) UpdateOneID(id int) *PriceUpdateOne {
+	mutation := newPriceMutation(c.config, OpUpdateOne, withPriceID(id))
+	return &PriceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Price.
+func (c *PriceClient) Delete() *PriceDelete {
+	mutation := newPriceMutation(c.config, OpDelete)
+	return &PriceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PriceClient) DeleteOne(pr *Price) *PriceDeleteOne {
+	return c.DeleteOneID(pr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PriceClient) DeleteOneID(id int) *PriceDeleteOne {
+	builder := c.Delete().Where(price.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PriceDeleteOne{builder}
+}
+
+// Query returns a query builder for Price.
+func (c *PriceClient) Query() *PriceQuery {
+	return &PriceQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePrice},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Price entity by its id.
+func (c *PriceClient) Get(ctx context.Context, id int) (*Price, error) {
+	return c.Query().Where(price.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PriceClient) GetX(ctx context.Context, id int) *Price {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PriceClient) Hooks() []Hook {
+	return c.hooks.Price
+}
+
+// Interceptors returns the client interceptors.
+func (c *PriceClient) Interceptors() []Interceptor {
+	return c.inters.Price
+}
+
+func (c *PriceClient) mutate(ctx context.Context, m *PriceMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PriceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PriceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PriceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PriceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Price mutation op: %q", m.Op())
 	}
 }
 
@@ -781,10 +924,10 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Reservation, Tables, Tables_type, User []ent.Hook
+		Price, Reservation, Tables, Tables_type, User []ent.Hook
 	}
 	inters struct {
-		Reservation, Tables, Tables_type, User []ent.Interceptor
+		Price, Reservation, Tables, Tables_type, User []ent.Interceptor
 	}
 )
 

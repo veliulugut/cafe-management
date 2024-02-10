@@ -8,6 +8,18 @@ import (
 	"fmt"
 )
 
+// The PriceFunc type is an adapter to allow the use of ordinary
+// function as Price mutator.
+type PriceFunc func(context.Context, *ent.PriceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PriceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PriceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PriceMutation", m)
+}
+
 // The ReservationFunc type is an adapter to allow the use of ordinary
 // function as Reservation mutator.
 type ReservationFunc func(context.Context, *ent.ReservationMutation) (ent.Value, error)

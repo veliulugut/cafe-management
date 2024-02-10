@@ -109,7 +109,7 @@ func (r *Reservation) GetByNameReservation(ctx context.Context, name string) (*d
 		err error
 	)
 
-	if db, err = r.dbClient.Reservation.Query().Where(reservation.FullName(name)).First(ctx); err != nil {
+	if db, err = r.dbClient.Reservation.Query().Where(reservation.FullNameContains(name)).First(ctx); err != nil {
 		return nil, fmt.Errorf("reservation / get reservation by name :%w", err)
 	}
 
