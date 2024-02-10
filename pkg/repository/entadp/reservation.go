@@ -30,12 +30,12 @@ type Reservation struct {
 	dbClient *ent.Client
 }
 
-func (r *Reservation) CheckAvailability(ctx context.Context, datetime time.Time, tableID int) (bool, error) {
+func (r *Reservation) CheckAvailability(ctx context.Context, startTime, endTime time.Time, tableID int) (bool, error) {
 	reservations, err := r.dbClient.Reservation.Query().
 		Where(
 			reservation.TableID(tableID),
-			reservation.StartTimeLTE(datetime.Add(time.Hour)),
-			reservation.EndTimeGTE(datetime),
+			reservation.StartTimeLTE(startTime),
+			reservation.EndTimeGTE(endTime),
 		).Count(ctx)
 
 	if err != nil {
@@ -51,6 +51,8 @@ func (r *Reservation) CreateReservation(ctx context.Context, c *dto.Reservation)
 		SetCreatedAt(time.Now()).
 		SetUpdatedAt(time.Now()).
 		SetTableID(c.TableID).
+		SetStartTime(c.StartTime).
+		SetEndTime(c.EndTime).
 		SetPhoneNumber(c.PhoneNumber).
 		Exec(ctx)
 	if err != nil {

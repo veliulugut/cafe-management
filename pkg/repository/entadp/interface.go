@@ -33,5 +33,5 @@ type ReservationRepository interface {
 	DeleteReservation(ctx context.Context, id int) error
 	UpdateReservation(ctx context.Context, id int, c *dto.Reservation) error
 	GetByNameReservation(ctx context.Context, name string) (*dto.Reservation, error)
-	CheckAvailability(ctx context.Context, datetime time.Time, tableID int) (bool, error)
+	CheckAvailability(ctx context.Context, startTime, endTime time.Time, tableID int) (bool, error)
 }

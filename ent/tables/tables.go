@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -25,8 +26,17 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// EdgeReservation holds the string denoting the reservation edge name in mutations.
+	EdgeReservation = "reservation"
 	// Table holds the table name of the tables in the database.
 	Table = "tables"
+	// ReservationTable is the table that holds the reservation relation/edge.
+	ReservationTable = "reservations"
+	// ReservationInverseTable is the table name for the Reservation entity.
+	// It exists in this package in order to avoid circular dependency with the "reservation" package.
+	ReservationInverseTable = "reservations"
+	// ReservationColumn is the table column denoting the reservation relation/edge.
+	ReservationColumn = "tables_reservation"
 )
 
 // Columns holds all SQL columns for tables fields.
@@ -93,4 +103,25 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByReservationCount orders the results by reservation count.
+func ByReservationCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newReservationStep(), opts...)
+	}
+}
+
+// ByReservation orders the results by reservation terms.
+func ByReservation(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReservationStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newReservationStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReservationInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ReservationTable, ReservationColumn),
+	)
 }

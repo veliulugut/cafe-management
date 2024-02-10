@@ -30,8 +30,9 @@ type Reservation struct {
 	// StartTime holds the value of the "start_time" field.
 	StartTime time.Time `json:"start_time,omitempty"`
 	// EndTime holds the value of the "end_time" field.
-	EndTime      time.Time `json:"end_time,omitempty"`
-	selectValues sql.SelectValues
+	EndTime            time.Time `json:"end_time,omitempty"`
+	tables_reservation *int
+	selectValues       sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -45,6 +46,8 @@ func (*Reservation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case reservation.FieldCreatedAt, reservation.FieldUpdatedAt, reservation.FieldStartTime, reservation.FieldEndTime:
 			values[i] = new(sql.NullTime)
+		case reservation.ForeignKeys[0]: // tables_reservation
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -107,6 +110,13 @@ func (r *Reservation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field end_time", values[i])
 			} else if value.Valid {
 				r.EndTime = value.Time
+			}
+		case reservation.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field tables_reservation", value)
+			} else if value.Valid {
+				r.tables_reservation = new(int)
+				*r.tables_reservation = int(value.Int64)
 			}
 		default:
 			r.selectValues.Set(columns[i], values[i])

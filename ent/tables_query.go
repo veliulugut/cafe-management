@@ -4,8 +4,10 @@ package ent
 
 import (
 	"cafe-management/ent/predicate"
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -17,10 +19,11 @@ import (
 // TablesQuery is the builder for querying Tables entities.
 type TablesQuery struct {
 	config
-	ctx        *QueryContext
-	order      []tables.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Tables
+	ctx             *QueryContext
+	order           []tables.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.Tables
+	withReservation *ReservationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +58,28 @@ func (tq *TablesQuery) Unique(unique bool) *TablesQuery {
 func (tq *TablesQuery) Order(o ...tables.OrderOption) *TablesQuery {
 	tq.order = append(tq.order, o...)
 	return tq
+}
+
+// QueryReservation chains the current query on the "reservation" edge.
+func (tq *TablesQuery) QueryReservation() *ReservationQuery {
+	query := (&ReservationClient{config: tq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tables.Table, tables.FieldID, selector),
+			sqlgraph.To(reservation.Table, reservation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tables.ReservationTable, tables.ReservationColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Tables entity from the query.
@@ -244,15 +269,27 @@ func (tq *TablesQuery) Clone() *TablesQuery {
 		return nil
 	}
 	return &TablesQuery{
-		config:     tq.config,
-		ctx:        tq.ctx.Clone(),
-		order:      append([]tables.OrderOption{}, tq.order...),
-		inters:     append([]Interceptor{}, tq.inters...),
-		predicates: append([]predicate.Tables{}, tq.predicates...),
+		config:          tq.config,
+		ctx:             tq.ctx.Clone(),
+		order:           append([]tables.OrderOption{}, tq.order...),
+		inters:          append([]Interceptor{}, tq.inters...),
+		predicates:      append([]predicate.Tables{}, tq.predicates...),
+		withReservation: tq.withReservation.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
 	}
+}
+
+// WithReservation tells the query-builder to eager-load the nodes that are connected to
+// the "reservation" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TablesQuery) WithReservation(opts ...func(*ReservationQuery)) *TablesQuery {
+	query := (&ReservationClient{config: tq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withReservation = query
+	return tq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +368,11 @@ func (tq *TablesQuery) prepareQuery(ctx context.Context) error {
 
 func (tq *TablesQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tables, error) {
 	var (
-		nodes = []*Tables{}
-		_spec = tq.querySpec()
+		nodes       = []*Tables{}
+		_spec       = tq.querySpec()
+		loadedTypes = [1]bool{
+			tq.withReservation != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Tables).scanValues(nil, columns)
@@ -340,6 +380,7 @@ func (tq *TablesQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Table
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Tables{config: tq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +392,46 @@ func (tq *TablesQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Table
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := tq.withReservation; query != nil {
+		if err := tq.loadReservation(ctx, query, nodes,
+			func(n *Tables) { n.Edges.Reservation = []*Reservation{} },
+			func(n *Tables, e *Reservation) { n.Edges.Reservation = append(n.Edges.Reservation, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (tq *TablesQuery) loadReservation(ctx context.Context, query *ReservationQuery, nodes []*Tables, init func(*Tables), assign func(*Tables, *Reservation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Tables)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Reservation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(tables.ReservationColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.tables_reservation
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "tables_reservation" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "tables_reservation" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (tq *TablesQuery) sqlCount(ctx context.Context) (int, error) {

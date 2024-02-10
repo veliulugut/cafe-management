@@ -21,6 +21,7 @@ type ReservationQuery struct {
 	order      []reservation.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Reservation
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -331,9 +332,13 @@ func (rq *ReservationQuery) prepareQuery(ctx context.Context) error {
 
 func (rq *ReservationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Reservation, error) {
 	var (
-		nodes = []*Reservation{}
-		_spec = rq.querySpec()
+		nodes   = []*Reservation{}
+		withFKs = rq.withFKs
+		_spec   = rq.querySpec()
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, reservation.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Reservation).scanValues(nil, columns)
 	}

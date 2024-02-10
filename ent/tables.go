@@ -28,8 +28,29 @@ type Tables struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the TablesQuery when eager-loading is set.
+	Edges        TablesEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// TablesEdges holds the relations/edges for other nodes in the graph.
+type TablesEdges struct {
+	// Reservation holds the value of the reservation edge.
+	Reservation []*Reservation `json:"reservation,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// ReservationOrErr returns the Reservation value or an error if the edge
+// was not loaded in eager-loading.
+func (e TablesEdges) ReservationOrErr() ([]*Reservation, error) {
+	if e.loadedTypes[0] {
+		return e.Reservation, nil
+	}
+	return nil, &NotLoadedError{edge: "reservation"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -111,6 +132,11 @@ func (t *Tables) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (t *Tables) Value(name string) (ent.Value, error) {
 	return t.selectValues.Get(name)
+}
+
+// QueryReservation queries the "reservation" edge of the Tables entity.
+func (t *Tables) QueryReservation() *ReservationQuery {
+	return NewTablesClient(t.config).QueryReservation(t)
 }
 
 // Update returns a builder for updating this Tables.

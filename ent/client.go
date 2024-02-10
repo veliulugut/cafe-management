@@ -19,6 +19,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 
 	stdsql "database/sql"
 )
@@ -468,6 +469,22 @@ func (c *TablesClient) GetX(ctx context.Context, id int) *Tables {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryReservation queries the reservation edge of a Tables.
+func (c *TablesClient) QueryReservation(t *Tables) *ReservationQuery {
+	query := (&ReservationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tables.Table, tables.FieldID, id),
+			sqlgraph.To(reservation.Table, reservation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, tables.ReservationTable, tables.ReservationColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

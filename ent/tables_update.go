@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cafe-management/ent/predicate"
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
 	"context"
 	"errors"
@@ -126,9 +127,45 @@ func (tu *TablesUpdate) SetNillableUpdatedAt(t *time.Time) *TablesUpdate {
 	return tu
 }
 
+// AddReservationIDs adds the "reservation" edge to the Reservation entity by IDs.
+func (tu *TablesUpdate) AddReservationIDs(ids ...int) *TablesUpdate {
+	tu.mutation.AddReservationIDs(ids...)
+	return tu
+}
+
+// AddReservation adds the "reservation" edges to the Reservation entity.
+func (tu *TablesUpdate) AddReservation(r ...*Reservation) *TablesUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tu.AddReservationIDs(ids...)
+}
+
 // Mutation returns the TablesMutation object of the builder.
 func (tu *TablesUpdate) Mutation() *TablesMutation {
 	return tu.mutation
+}
+
+// ClearReservation clears all "reservation" edges to the Reservation entity.
+func (tu *TablesUpdate) ClearReservation() *TablesUpdate {
+	tu.mutation.ClearReservation()
+	return tu
+}
+
+// RemoveReservationIDs removes the "reservation" edge to Reservation entities by IDs.
+func (tu *TablesUpdate) RemoveReservationIDs(ids ...int) *TablesUpdate {
+	tu.mutation.RemoveReservationIDs(ids...)
+	return tu
+}
+
+// RemoveReservation removes "reservation" edges to Reservation entities.
+func (tu *TablesUpdate) RemoveReservation(r ...*Reservation) *TablesUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tu.RemoveReservationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -190,6 +227,51 @@ func (tu *TablesUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.SetField(tables.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if tu.mutation.ReservationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedReservationIDs(); len(nodes) > 0 && !tu.mutation.ReservationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.ReservationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -309,9 +391,45 @@ func (tuo *TablesUpdateOne) SetNillableUpdatedAt(t *time.Time) *TablesUpdateOne 
 	return tuo
 }
 
+// AddReservationIDs adds the "reservation" edge to the Reservation entity by IDs.
+func (tuo *TablesUpdateOne) AddReservationIDs(ids ...int) *TablesUpdateOne {
+	tuo.mutation.AddReservationIDs(ids...)
+	return tuo
+}
+
+// AddReservation adds the "reservation" edges to the Reservation entity.
+func (tuo *TablesUpdateOne) AddReservation(r ...*Reservation) *TablesUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tuo.AddReservationIDs(ids...)
+}
+
 // Mutation returns the TablesMutation object of the builder.
 func (tuo *TablesUpdateOne) Mutation() *TablesMutation {
 	return tuo.mutation
+}
+
+// ClearReservation clears all "reservation" edges to the Reservation entity.
+func (tuo *TablesUpdateOne) ClearReservation() *TablesUpdateOne {
+	tuo.mutation.ClearReservation()
+	return tuo
+}
+
+// RemoveReservationIDs removes the "reservation" edge to Reservation entities by IDs.
+func (tuo *TablesUpdateOne) RemoveReservationIDs(ids ...int) *TablesUpdateOne {
+	tuo.mutation.RemoveReservationIDs(ids...)
+	return tuo
+}
+
+// RemoveReservation removes "reservation" edges to Reservation entities.
+func (tuo *TablesUpdateOne) RemoveReservation(r ...*Reservation) *TablesUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tuo.RemoveReservationIDs(ids...)
 }
 
 // Where appends a list predicates to the TablesUpdate builder.
@@ -403,6 +521,51 @@ func (tuo *TablesUpdateOne) sqlSave(ctx context.Context) (_node *Tables, err err
 	}
 	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(tables.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if tuo.mutation.ReservationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedReservationIDs(); len(nodes) > 0 && !tuo.mutation.ReservationCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.ReservationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Tables{config: tuo.config}
 	_spec.Assign = _node.assignValues

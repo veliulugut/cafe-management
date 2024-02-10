@@ -103,7 +103,7 @@ func TestReservation_CheckAvailability(t *testing.T) {
 		TableID:     1,
 		PhoneNumber: "31 31 31",
 		StartTime:   time.Now(),
-		EndTime:     time.Now(),
+		EndTime:     time.Now().Add(3 * time.Hour),
 	}
 
 	t.Run("CreateReservation", func(t *testing.T) {
@@ -115,19 +115,22 @@ func TestReservation_CheckAvailability(t *testing.T) {
 
 	test := []struct {
 		description string
-		datetime    time.Time
+		startTime   time.Time
+		endTime     time.Time
 		tableID     int
 		expected    bool
 	}{
 		{
 			description: "available",
-			datetime:    time.Now().Add(2 * time.Hour),
+			startTime:   time.Now().Add(4 * time.Hour),
+			endTime:     time.Now().Add(5 * time.Hour),
 			tableID:     1,
 			expected:    true, //available
 		},
 		{
 			description: "not available",
-			datetime:    time.Now().Add(2 * time.Hour),
+			startTime:   time.Now().Add(1 * time.Hour),
+			endTime:     time.Now().Add(2 * time.Hour),
 			tableID:     1,
 			expected:    false,
 		},
@@ -135,21 +138,7 @@ func TestReservation_CheckAvailability(t *testing.T) {
 
 	for _, tt := range test {
 		t.Run(fmt.Sprintf("CheckAvailability %s", tt.description), func(t *testing.T) {
-			t.Run(fmt.Sprintf("DeleteReservation %s", tt.description), func(t *testing.T) {
-				err := repo.DeleteReservation(context.Background(), 1)
-				if err != nil {
-					t.Error(err)
-				}
-			})
-
-			t.Run(fmt.Sprintf("CreateReservation %s", tt.description), func(t *testing.T) {
-				err := repo.CreateReservation(context.Background(), &reservation)
-				if err != nil {
-					t.Error(err)
-				}
-			})
-
-			result, err := repo.CheckAvailability(context.Background(), tt.datetime, tt.tableID)
+			result, err := repo.CheckAvailability(context.Background(), tt.startTime, tt.endTime, tt.tableID)
 			if err != nil {
 				t.Errorf("unexpected error :%v", err)
 				return

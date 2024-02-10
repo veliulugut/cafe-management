@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
 	"context"
 	"errors"
@@ -72,6 +73,21 @@ func (tc *TablesCreate) SetNillableUpdatedAt(t *time.Time) *TablesCreate {
 		tc.SetUpdatedAt(*t)
 	}
 	return tc
+}
+
+// AddReservationIDs adds the "reservation" edge to the Reservation entity by IDs.
+func (tc *TablesCreate) AddReservationIDs(ids ...int) *TablesCreate {
+	tc.mutation.AddReservationIDs(ids...)
+	return tc
+}
+
+// AddReservation adds the "reservation" edges to the Reservation entity.
+func (tc *TablesCreate) AddReservation(r ...*Reservation) *TablesCreate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return tc.AddReservationIDs(ids...)
 }
 
 // Mutation returns the TablesMutation object of the builder.
@@ -189,6 +205,22 @@ func (tc *TablesCreate) createSpec() (*Tables, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.UpdatedAt(); ok {
 		_spec.SetField(tables.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if nodes := tc.mutation.ReservationIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   tables.ReservationTable,
+			Columns: []string{tables.ReservationColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(reservation.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

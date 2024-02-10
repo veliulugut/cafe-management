@@ -775,6 +775,9 @@ type TablesMutation struct {
 	created_at          *time.Time
 	updated_at          *time.Time
 	clearedFields       map[string]struct{}
+	reservation         map[int]struct{}
+	removedreservation  map[int]struct{}
+	clearedreservation  bool
 	done                bool
 	oldValue            func(context.Context) (*Tables, error)
 	predicates          []predicate.Tables
@@ -1134,6 +1137,60 @@ func (m *TablesMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// AddReservationIDs adds the "reservation" edge to the Reservation entity by ids.
+func (m *TablesMutation) AddReservationIDs(ids ...int) {
+	if m.reservation == nil {
+		m.reservation = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.reservation[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReservation clears the "reservation" edge to the Reservation entity.
+func (m *TablesMutation) ClearReservation() {
+	m.clearedreservation = true
+}
+
+// ReservationCleared reports if the "reservation" edge to the Reservation entity was cleared.
+func (m *TablesMutation) ReservationCleared() bool {
+	return m.clearedreservation
+}
+
+// RemoveReservationIDs removes the "reservation" edge to the Reservation entity by IDs.
+func (m *TablesMutation) RemoveReservationIDs(ids ...int) {
+	if m.removedreservation == nil {
+		m.removedreservation = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.reservation, ids[i])
+		m.removedreservation[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReservation returns the removed IDs of the "reservation" edge to the Reservation entity.
+func (m *TablesMutation) RemovedReservationIDs() (ids []int) {
+	for id := range m.removedreservation {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReservationIDs returns the "reservation" edge IDs in the mutation.
+func (m *TablesMutation) ReservationIDs() (ids []int) {
+	for id := range m.reservation {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReservation resets all changes to the "reservation" edge.
+func (m *TablesMutation) ResetReservation() {
+	m.reservation = nil
+	m.clearedreservation = false
+	m.removedreservation = nil
+}
+
 // Where appends a list predicates to the TablesMutation builder.
 func (m *TablesMutation) Where(ps ...predicate.Tables) {
 	m.predicates = append(m.predicates, ps...)
@@ -1379,49 +1436,85 @@ func (m *TablesMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TablesMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.reservation != nil {
+		edges = append(edges, tables.EdgeReservation)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *TablesMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case tables.EdgeReservation:
+		ids := make([]ent.Value, 0, len(m.reservation))
+		for id := range m.reservation {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TablesMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedreservation != nil {
+		edges = append(edges, tables.EdgeReservation)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *TablesMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case tables.EdgeReservation:
+		ids := make([]ent.Value, 0, len(m.removedreservation))
+		for id := range m.removedreservation {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TablesMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedreservation {
+		edges = append(edges, tables.EdgeReservation)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *TablesMutation) EdgeCleared(name string) bool {
+	switch name {
+	case tables.EdgeReservation:
+		return m.clearedreservation
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *TablesMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Tables unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *TablesMutation) ResetEdge(name string) error {
+	switch name {
+	case tables.EdgeReservation:
+		m.ResetReservation()
+		return nil
+	}
 	return fmt.Errorf("unknown Tables edge %s", name)
 }
 

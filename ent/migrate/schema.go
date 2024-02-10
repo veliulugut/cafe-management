@@ -18,12 +18,21 @@ var (
 		{Name: "phone_number", Type: field.TypeString, Nullable: true},
 		{Name: "start_time", Type: field.TypeTime},
 		{Name: "end_time", Type: field.TypeTime},
+		{Name: "tables_reservation", Type: field.TypeInt, Nullable: true},
 	}
 	// ReservationsTable holds the schema information for the "reservations" table.
 	ReservationsTable = &schema.Table{
 		Name:       "reservations",
 		Columns:    ReservationsColumns,
 		PrimaryKey: []*schema.Column{ReservationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "reservations_tables_reservation",
+				Columns:    []*schema.Column{ReservationsColumns[8]},
+				RefColumns: []*schema.Column{TablesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// TablesColumns holds the columns for the "tables" table.
 	TablesColumns = []*schema.Column{
@@ -82,4 +91,5 @@ var (
 )
 
 func init() {
+	ReservationsTable.ForeignKeys[0].RefTable = TablesTable
 }
