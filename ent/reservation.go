@@ -27,6 +27,8 @@ type Reservation struct {
 	TableID int `json:"table_id,omitempty"`
 	// PhoneNumber holds the value of the "phone_number" field.
 	PhoneNumber string `json:"phone_number,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
 	// StartTime holds the value of the "start_time" field.
 	StartTime time.Time `json:"start_time,omitempty"`
 	// EndTime holds the value of the "end_time" field.
@@ -42,7 +44,7 @@ func (*Reservation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case reservation.FieldID, reservation.FieldTableID:
 			values[i] = new(sql.NullInt64)
-		case reservation.FieldFullName, reservation.FieldPhoneNumber:
+		case reservation.FieldFullName, reservation.FieldPhoneNumber, reservation.FieldStatus:
 			values[i] = new(sql.NullString)
 		case reservation.FieldCreatedAt, reservation.FieldUpdatedAt, reservation.FieldStartTime, reservation.FieldEndTime:
 			values[i] = new(sql.NullTime)
@@ -98,6 +100,12 @@ func (r *Reservation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field phone_number", values[i])
 			} else if value.Valid {
 				r.PhoneNumber = value.String
+			}
+		case reservation.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				r.Status = value.String
 			}
 		case reservation.FieldStartTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -168,6 +176,9 @@ func (r *Reservation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("phone_number=")
 	builder.WriteString(r.PhoneNumber)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(r.Status)
 	builder.WriteString(", ")
 	builder.WriteString("start_time=")
 	builder.WriteString(r.StartTime.Format(time.ANSIC))

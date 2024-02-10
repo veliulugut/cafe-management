@@ -30,6 +30,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "table_id", Type: field.TypeInt},
 		{Name: "phone_number", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeString, Nullable: true},
 		{Name: "start_time", Type: field.TypeTime},
 		{Name: "end_time", Type: field.TypeTime},
 		{Name: "tables_reservation", Type: field.TypeInt, Nullable: true},
@@ -42,7 +43,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "reservations_tables_reservation",
-				Columns:    []*schema.Column{ReservationsColumns[8]},
+				Columns:    []*schema.Column{ReservationsColumns[9]},
 				RefColumns: []*schema.Column{TablesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

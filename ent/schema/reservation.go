@@ -21,6 +21,7 @@ func (Reservation) Fields() []ent.Field {
 		field.Time("updated_at").Default(time.Now().UTC()),
 		field.Int("table_id"),
 		field.String("phone_number").Optional(),
+		field.String("status").Optional(),
 		field.Time("start_time").Default(time.Now().UTC()),
 		field.Time("end_time").Default(time.Now().UTC()),
 	}

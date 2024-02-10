@@ -84,6 +84,20 @@ func (rc *ReservationCreate) SetNillablePhoneNumber(s *string) *ReservationCreat
 	return rc
 }
 
+// SetStatus sets the "status" field.
+func (rc *ReservationCreate) SetStatus(s string) *ReservationCreate {
+	rc.mutation.SetStatus(s)
+	return rc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (rc *ReservationCreate) SetNillableStatus(s *string) *ReservationCreate {
+	if s != nil {
+		rc.SetStatus(*s)
+	}
+	return rc
+}
+
 // SetStartTime sets the "start_time" field.
 func (rc *ReservationCreate) SetStartTime(t time.Time) *ReservationCreate {
 	rc.mutation.SetStartTime(t)
@@ -229,6 +243,10 @@ func (rc *ReservationCreate) createSpec() (*Reservation, *sqlgraph.CreateSpec) {
 		_spec.SetField(reservation.FieldPhoneNumber, field.TypeString, value)
 		_node.PhoneNumber = value
 	}
+	if value, ok := rc.mutation.Status(); ok {
+		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
 	if value, ok := rc.mutation.StartTime(); ok {
 		_spec.SetField(reservation.FieldStartTime, field.TypeTime, value)
 		_node.StartTime = value
@@ -364,6 +382,24 @@ func (u *ReservationUpsert) UpdatePhoneNumber() *ReservationUpsert {
 // ClearPhoneNumber clears the value of the "phone_number" field.
 func (u *ReservationUpsert) ClearPhoneNumber() *ReservationUpsert {
 	u.SetNull(reservation.FieldPhoneNumber)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *ReservationUpsert) SetStatus(v string) *ReservationUpsert {
+	u.Set(reservation.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ReservationUpsert) UpdateStatus() *ReservationUpsert {
+	u.SetExcluded(reservation.FieldStatus)
+	return u
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *ReservationUpsert) ClearStatus() *ReservationUpsert {
+	u.SetNull(reservation.FieldStatus)
 	return u
 }
 
@@ -519,6 +555,27 @@ func (u *ReservationUpsertOne) UpdatePhoneNumber() *ReservationUpsertOne {
 func (u *ReservationUpsertOne) ClearPhoneNumber() *ReservationUpsertOne {
 	return u.Update(func(s *ReservationUpsert) {
 		s.ClearPhoneNumber()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *ReservationUpsertOne) SetStatus(v string) *ReservationUpsertOne {
+	return u.Update(func(s *ReservationUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ReservationUpsertOne) UpdateStatus() *ReservationUpsertOne {
+	return u.Update(func(s *ReservationUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *ReservationUpsertOne) ClearStatus() *ReservationUpsertOne {
+	return u.Update(func(s *ReservationUpsert) {
+		s.ClearStatus()
 	})
 }
 
@@ -842,6 +899,27 @@ func (u *ReservationUpsertBulk) UpdatePhoneNumber() *ReservationUpsertBulk {
 func (u *ReservationUpsertBulk) ClearPhoneNumber() *ReservationUpsertBulk {
 	return u.Update(func(s *ReservationUpsert) {
 		s.ClearPhoneNumber()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *ReservationUpsertBulk) SetStatus(v string) *ReservationUpsertBulk {
+	return u.Update(func(s *ReservationUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *ReservationUpsertBulk) UpdateStatus() *ReservationUpsertBulk {
+	return u.Update(func(s *ReservationUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// ClearStatus clears the value of the "status" field.
+func (u *ReservationUpsertBulk) ClearStatus() *ReservationUpsertBulk {
+	return u.Update(func(s *ReservationUpsert) {
+		s.ClearStatus()
 	})
 }
 

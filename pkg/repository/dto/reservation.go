@@ -10,4 +10,5 @@ type Reservation struct {
 	PhoneNumber string    `json:"phone_number"`
 	StartTime   time.Time `json:"start_time"`
 	EndTime     time.Time `json:"end_time"`
+	Status      string    `json:"status"`
 }

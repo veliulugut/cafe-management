@@ -12,5 +12,8 @@ func DbReservationTo(d *ent.Reservation) *dto.Reservation {
 		UpdatedAt:   d.UpdatedAt,
 		TableID:     d.TableID,
 		PhoneNumber: d.PhoneNumber,
+		StartTime:   d.StartTime,
+		EndTime:     d.EndTime,
+		Status:      d.Status,
 	}
 }

@@ -117,6 +117,26 @@ func (ru *ReservationUpdate) ClearPhoneNumber() *ReservationUpdate {
 	return ru
 }
 
+// SetStatus sets the "status" field.
+func (ru *ReservationUpdate) SetStatus(s string) *ReservationUpdate {
+	ru.mutation.SetStatus(s)
+	return ru
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ru *ReservationUpdate) SetNillableStatus(s *string) *ReservationUpdate {
+	if s != nil {
+		ru.SetStatus(*s)
+	}
+	return ru
+}
+
+// ClearStatus clears the value of the "status" field.
+func (ru *ReservationUpdate) ClearStatus() *ReservationUpdate {
+	ru.mutation.ClearStatus()
+	return ru
+}
+
 // SetStartTime sets the "start_time" field.
 func (ru *ReservationUpdate) SetStartTime(t time.Time) *ReservationUpdate {
 	ru.mutation.SetStartTime(t)
@@ -209,6 +229,12 @@ func (ru *ReservationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ru.mutation.PhoneNumberCleared() {
 		_spec.ClearField(reservation.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := ru.mutation.Status(); ok {
+		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
+	}
+	if ru.mutation.StatusCleared() {
+		_spec.ClearField(reservation.FieldStatus, field.TypeString)
 	}
 	if value, ok := ru.mutation.StartTime(); ok {
 		_spec.SetField(reservation.FieldStartTime, field.TypeTime, value)
@@ -322,6 +348,26 @@ func (ruo *ReservationUpdateOne) SetNillablePhoneNumber(s *string) *ReservationU
 // ClearPhoneNumber clears the value of the "phone_number" field.
 func (ruo *ReservationUpdateOne) ClearPhoneNumber() *ReservationUpdateOne {
 	ruo.mutation.ClearPhoneNumber()
+	return ruo
+}
+
+// SetStatus sets the "status" field.
+func (ruo *ReservationUpdateOne) SetStatus(s string) *ReservationUpdateOne {
+	ruo.mutation.SetStatus(s)
+	return ruo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ruo *ReservationUpdateOne) SetNillableStatus(s *string) *ReservationUpdateOne {
+	if s != nil {
+		ruo.SetStatus(*s)
+	}
+	return ruo
+}
+
+// ClearStatus clears the value of the "status" field.
+func (ruo *ReservationUpdateOne) ClearStatus() *ReservationUpdateOne {
+	ruo.mutation.ClearStatus()
 	return ruo
 }
 
@@ -447,6 +493,12 @@ func (ruo *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservatio
 	}
 	if ruo.mutation.PhoneNumberCleared() {
 		_spec.ClearField(reservation.FieldPhoneNumber, field.TypeString)
+	}
+	if value, ok := ruo.mutation.Status(); ok {
+		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
+	}
+	if ruo.mutation.StatusCleared() {
+		_spec.ClearField(reservation.FieldStatus, field.TypeString)
 	}
 	if value, ok := ruo.mutation.StartTime(); ok {
 		_spec.SetField(reservation.FieldStartTime, field.TypeTime, value)

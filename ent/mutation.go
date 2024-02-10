@@ -571,6 +571,7 @@ type ReservationMutation struct {
 	table_id      *int
 	addtable_id   *int
 	phone_number  *string
+	status        *string
 	start_time    *time.Time
 	end_time      *time.Time
 	clearedFields map[string]struct{}
@@ -903,6 +904,55 @@ func (m *ReservationMutation) ResetPhoneNumber() {
 	delete(m.clearedFields, reservation.FieldPhoneNumber)
 }
 
+// SetStatus sets the "status" field.
+func (m *ReservationMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *ReservationMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Reservation entity.
+// If the Reservation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReservationMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ClearStatus clears the value of the "status" field.
+func (m *ReservationMutation) ClearStatus() {
+	m.status = nil
+	m.clearedFields[reservation.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *ReservationMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[reservation.FieldStatus]
+	return ok
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *ReservationMutation) ResetStatus() {
+	m.status = nil
+	delete(m.clearedFields, reservation.FieldStatus)
+}
+
 // SetStartTime sets the "start_time" field.
 func (m *ReservationMutation) SetStartTime(t time.Time) {
 	m.start_time = &t
@@ -1009,7 +1059,7 @@ func (m *ReservationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ReservationMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.full_name != nil {
 		fields = append(fields, reservation.FieldFullName)
 	}
@@ -1024,6 +1074,9 @@ func (m *ReservationMutation) Fields() []string {
 	}
 	if m.phone_number != nil {
 		fields = append(fields, reservation.FieldPhoneNumber)
+	}
+	if m.status != nil {
+		fields = append(fields, reservation.FieldStatus)
 	}
 	if m.start_time != nil {
 		fields = append(fields, reservation.FieldStartTime)
@@ -1049,6 +1102,8 @@ func (m *ReservationMutation) Field(name string) (ent.Value, bool) {
 		return m.TableID()
 	case reservation.FieldPhoneNumber:
 		return m.PhoneNumber()
+	case reservation.FieldStatus:
+		return m.Status()
 	case reservation.FieldStartTime:
 		return m.StartTime()
 	case reservation.FieldEndTime:
@@ -1072,6 +1127,8 @@ func (m *ReservationMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldTableID(ctx)
 	case reservation.FieldPhoneNumber:
 		return m.OldPhoneNumber(ctx)
+	case reservation.FieldStatus:
+		return m.OldStatus(ctx)
 	case reservation.FieldStartTime:
 		return m.OldStartTime(ctx)
 	case reservation.FieldEndTime:
@@ -1119,6 +1176,13 @@ func (m *ReservationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPhoneNumber(v)
+		return nil
+	case reservation.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	case reservation.FieldStartTime:
 		v, ok := value.(time.Time)
@@ -1185,6 +1249,9 @@ func (m *ReservationMutation) ClearedFields() []string {
 	if m.FieldCleared(reservation.FieldPhoneNumber) {
 		fields = append(fields, reservation.FieldPhoneNumber)
 	}
+	if m.FieldCleared(reservation.FieldStatus) {
+		fields = append(fields, reservation.FieldStatus)
+	}
 	return fields
 }
 
@@ -1204,6 +1271,9 @@ func (m *ReservationMutation) ClearField(name string) error {
 		return nil
 	case reservation.FieldPhoneNumber:
 		m.ClearPhoneNumber()
+		return nil
+	case reservation.FieldStatus:
+		m.ClearStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown Reservation nullable field %s", name)
@@ -1227,6 +1297,9 @@ func (m *ReservationMutation) ResetField(name string) error {
 		return nil
 	case reservation.FieldPhoneNumber:
 		m.ResetPhoneNumber()
+		return nil
+	case reservation.FieldStatus:
+		m.ResetStatus()
 		return nil
 	case reservation.FieldStartTime:
 		m.ResetStartTime()

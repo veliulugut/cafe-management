@@ -36,11 +36,11 @@ func init() {
 	// reservation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	reservation.DefaultUpdatedAt = reservationDescUpdatedAt.Default.(time.Time)
 	// reservationDescStartTime is the schema descriptor for start_time field.
-	reservationDescStartTime := reservationFields[5].Descriptor()
+	reservationDescStartTime := reservationFields[6].Descriptor()
 	// reservation.DefaultStartTime holds the default value on creation for the start_time field.
 	reservation.DefaultStartTime = reservationDescStartTime.Default.(time.Time)
 	// reservationDescEndTime is the schema descriptor for end_time field.
-	reservationDescEndTime := reservationFields[6].Descriptor()
+	reservationDescEndTime := reservationFields[7].Descriptor()
 	// reservation.DefaultEndTime holds the default value on creation for the end_time field.
 	reservation.DefaultEndTime = reservationDescEndTime.Default.(time.Time)
 	tablesFields := schema.Tables{}.Fields()

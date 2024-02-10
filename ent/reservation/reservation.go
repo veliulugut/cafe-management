@@ -23,6 +23,8 @@ const (
 	FieldTableID = "table_id"
 	// FieldPhoneNumber holds the string denoting the phone_number field in the database.
 	FieldPhoneNumber = "phone_number"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// FieldStartTime holds the string denoting the start_time field in the database.
 	FieldStartTime = "start_time"
 	// FieldEndTime holds the string denoting the end_time field in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldTableID,
 	FieldPhoneNumber,
+	FieldStatus,
 	FieldStartTime,
 	FieldEndTime,
 }
@@ -106,6 +109,11 @@ func ByTableID(opts ...sql.OrderTermOption) OrderOption {
 // ByPhoneNumber orders the results by the phone_number field.
 func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPhoneNumber, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByStartTime orders the results by the start_time field.
