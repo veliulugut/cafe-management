@@ -9,6 +9,9 @@ import (
 // Price is the predicate function for price builders.
 type Price func(*sql.Selector)
 
+// Product is the predicate function for product builders.
+type Product func(*sql.Selector)
+
 // Reservation is the predicate function for reservation builders.
 type Reservation func(*sql.Selector)
 

@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+type RepositoryInterface interface {
+	User() UserRepository
+	Table() TablesRepository
+	TableTypes() TablesTypeRepostiory
+	Reservation() ReservationRepository
+	Price() PriceRepository
+}
+
 type UserRepository interface {
 	CreateUser(ctx context.Context, c *dto.User) error
 	DeleteUser(ctx context.Context, id int) error
@@ -43,4 +51,11 @@ type PriceRepository interface {
 	DeletePrice(ctx context.Context, id int) error
 	UpdatePrice(ctx context.Context, id int, c *dto.Price) error
 	ListPrice(ctx context.Context) ([]*ent.Price, error)
+}
+
+type ProductRepository interface {
+	CreateProduct(ctx context.Context, c *dto.Product) error
+	DeleteProduct(ctx context.Context, id int) error
+	UpdateProduct(ctx context.Context, id int, c *dto.Product) error
+	ListProduct(ctx context.Context) ([]*ent.Product, error)
 }

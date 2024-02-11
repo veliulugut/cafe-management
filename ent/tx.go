@@ -16,6 +16,8 @@ type Tx struct {
 	config
 	// Price is the client for interacting with the Price builders.
 	Price *PriceClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
 	// Reservation is the client for interacting with the Reservation builders.
 	Reservation *ReservationClient
 	// Tables is the client for interacting with the Tables builders.
@@ -156,6 +158,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Price = NewPriceClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
 	tx.Reservation = NewReservationClient(tx.config)
 	tx.Tables = NewTablesClient(tx.config)
 	tx.Tables_type = NewTablesTypeClient(tx.config)

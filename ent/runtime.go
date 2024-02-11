@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cafe-management/ent/price"
+	"cafe-management/ent/product"
 	"cafe-management/ent/reservation"
 	"cafe-management/ent/schema"
 	"cafe-management/ent/tables"
@@ -25,6 +26,16 @@ func init() {
 	priceDescUpdatedAt := priceFields[3].Descriptor()
 	// price.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	price.DefaultUpdatedAt = priceDescUpdatedAt.Default.(time.Time)
+	productFields := schema.Product{}.Fields()
+	_ = productFields
+	// productDescCreatedAt is the schema descriptor for created_at field.
+	productDescCreatedAt := productFields[5].Descriptor()
+	// product.DefaultCreatedAt holds the default value on creation for the created_at field.
+	product.DefaultCreatedAt = productDescCreatedAt.Default.(time.Time)
+	// productDescUpdatedAt is the schema descriptor for updated_at field.
+	productDescUpdatedAt := productFields[6].Descriptor()
+	// product.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	product.DefaultUpdatedAt = productDescUpdatedAt.Default.(time.Time)
 	reservationFields := schema.Reservation{}.Fields()
 	_ = reservationFields
 	// reservationDescCreatedAt is the schema descriptor for created_at field.
