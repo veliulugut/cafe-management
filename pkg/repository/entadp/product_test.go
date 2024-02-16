@@ -186,3 +186,37 @@ func TestProduct_DeleteProduct(t *testing.T) {
 	})
 
 }
+
+func TestProduct_GetById(t *testing.T) {
+	opts := []enttest.Option{
+		enttest.WithOptions(ent.Log(t.Log)),
+	}
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1", opts...)
+	defer client.Close()
+
+	repo := NewProductRepository(client)
+
+	product := dto.Product{
+		ProductName: "water",
+		Description: "water",
+		Price:       100,
+		Quantity:    100,
+		ProductType: "drink",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	t.Run("CreateProduct", func(t *testing.T) {
+		err := repo.CreateProduct(context.Background(), &product)
+		if err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("GetById", func(t *testing.T) {
+		_, err := repo.GetById(context.Background(), 1)
+		if err != nil {
+			t.Error(err)
+		}
+	})
+}

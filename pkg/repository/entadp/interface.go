@@ -44,6 +44,7 @@ type ReservationRepository interface {
 	CheckAvailability(ctx context.Context, startTime, endTime time.Time, tableID int) (bool, error)
 	GetReservationHistory(ctx context.Context, username string) ([]*ent.Reservation, error)
 	CancelReservation(ctx context.Context, id int) error
+	ListReservationByTable(ctx context.Context, tableID int) (*dto.Reservation, error)
 }
 
 type PriceRepository interface {
@@ -58,4 +59,5 @@ type ProductRepository interface {
 	DeleteProduct(ctx context.Context, id int) error
 	UpdateProduct(ctx context.Context, id int, c *dto.Product) error
 	ListProduct(ctx context.Context) ([]*ent.Product, error)
+	GetById(ctx context.Context, id int) (*dto.Product, error)
 }

@@ -3,6 +3,7 @@ package entadp
 import (
 	"cafe-management/ent"
 	"cafe-management/pkg/repository/dto"
+	"cafe-management/pkg/repository/helper"
 	"context"
 	"fmt"
 	"time"
@@ -73,4 +74,17 @@ func (p *Product) UpdateProduct(ctx context.Context, id int, c *dto.Product) err
 	}
 
 	return nil
+}
+
+func (p *Product) GetById(ctx context.Context, id int) (*dto.Product, error) {
+	var (
+		product *ent.Product
+		err     error
+	)
+
+	if product, err = p.dbClient.Product.Get(ctx, id); err != nil {
+		return nil, fmt.Errorf("failed to get product: %w", err)
+	}
+
+	return helper.DbProductTo(product), nil
 }

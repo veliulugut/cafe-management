@@ -72,11 +72,6 @@ func (r *Reservation) UpdateReservation(ctx context.Context, id int, c *dto.Rese
 	return nil
 }
 
-func (r *Reservation) ListReservation(ctx context.Context, date time.Time) (*dto.Reservation, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (r *Reservation) ListReservationByTable(ctx context.Context, tableID int) (*dto.Reservation, error) {
 	var (
 		db  *ent.Reservation
@@ -88,11 +83,6 @@ func (r *Reservation) ListReservationByTable(ctx context.Context, tableID int) (
 	}
 
 	return helper.DbReservationTo(db), nil
-}
-
-func (r *Reservation) ListReservationByUser(ctx context.Context, userID int) (*dto.Reservation, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (r *Reservation) GetByNameReservation(ctx context.Context, name string) (*dto.Reservation, error) {
