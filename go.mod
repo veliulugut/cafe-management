@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	entgo.io/ent v0.12.5
 	github.com/mattn/go-sqlite3 v1.14.20
+	go.uber.org/mock v0.4.0
 )
 
 require (
@@ -19,4 +20,5 @@ require (
 	github.com/zclconf/go-cty v1.14.2 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+
 )

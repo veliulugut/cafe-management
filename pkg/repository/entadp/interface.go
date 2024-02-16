@@ -1,3 +1,4 @@
+//go:generate mockgen -destination=repository_mocks.go -package=entadp cafe-management/pkg/repository/entadp RepositoryInterface
 package entadp
 
 import (
@@ -13,6 +14,7 @@ type RepositoryInterface interface {
 	TableTypes() TablesTypeRepostiory
 	Reservation() ReservationRepository
 	Price() PriceRepository
+	Product() ProductRepository
 }
 
 type UserRepository interface {

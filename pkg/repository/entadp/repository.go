@@ -10,14 +10,17 @@ type Repository struct {
 	price       PriceRepository
 	tablestype  TablesTypeRepostiory
 	reservation ReservationRepository
+	product     ProductRepository
 }
 
 func NewRepository(dbClient *ent.Client) *Repository {
 	return &Repository{
-		user:       NewUserRepository(dbClient),
-		tables:     NewTablesRepository(dbClient),
-		price:      NewPriceRepository(dbClient),
-		tablestype: NewTableTypeRepository(dbClient),
+		user:        NewUserRepository(dbClient),
+		tables:      NewTablesRepository(dbClient),
+		price:       NewPriceRepository(dbClient),
+		tablestype:  NewTableTypeRepository(dbClient),
+		product:     NewProductRepository(dbClient),
+		reservation: NewReservation(dbClient),
 	}
 }
 
@@ -39,4 +42,8 @@ func (r *Repository) TableTypes() TablesTypeRepostiory {
 
 func (r *Repository) User() UserRepository {
 	return r.user
+}
+
+func (r *Repository) Product() ProductRepository {
+	return r.product
 }
