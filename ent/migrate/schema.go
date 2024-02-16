@@ -8,6 +8,35 @@ import (
 )
 
 var (
+	// OrdersColumns holds the columns for the "orders" table.
+	OrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "order_id", Type: field.TypeInt},
+		{Name: "table_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "order_type", Type: field.TypeInt},
+		{Name: "status", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "order_date", Type: field.TypeTime},
+	}
+	// OrdersTable holds the schema information for the "orders" table.
+	OrdersTable = &schema.Table{
+		Name:       "orders",
+		Columns:    OrdersColumns,
+		PrimaryKey: []*schema.Column{OrdersColumns[0]},
+	}
+	// OrderTypesColumns holds the columns for the "order_types" table.
+	OrderTypesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString},
+	}
+	// OrderTypesTable holds the schema information for the "order_types" table.
+	OrderTypesTable = &schema.Table{
+		Name:       "order_types",
+		Columns:    OrderTypesColumns,
+		PrimaryKey: []*schema.Column{OrderTypesColumns[0]},
+	}
 	// PricesColumns holds the columns for the "prices" table.
 	PricesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -115,6 +144,8 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		OrdersTable,
+		OrderTypesTable,
 		PricesTable,
 		ProductsTable,
 		ReservationsTable,

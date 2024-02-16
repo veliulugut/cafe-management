@@ -8,6 +8,30 @@ import (
 	"fmt"
 )
 
+// The OrderFunc type is an adapter to allow the use of ordinary
+// function as Order mutator.
+type OrderFunc func(context.Context, *ent.OrderMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderMutation", m)
+}
+
+// The OrderTypeFunc type is an adapter to allow the use of ordinary
+// function as OrderType mutator.
+type OrderTypeFunc func(context.Context, *ent.OrderTypeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrderTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrderTypeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrderTypeMutation", m)
+}
+
 // The PriceFunc type is an adapter to allow the use of ordinary
 // function as Price mutator.
 type PriceFunc func(context.Context, *ent.PriceMutation) (ent.Value, error)
