@@ -11,6 +11,9 @@ type Repository struct {
 	tablestype  TablesTypeRepostiory
 	reservation ReservationRepository
 	product     ProductRepository
+	order       OrderRepository
+	ordertype   OrdersTypeRepository
+	menu        MenuRepository
 }
 
 func NewRepository(dbClient *ent.Client) *Repository {
@@ -21,6 +24,9 @@ func NewRepository(dbClient *ent.Client) *Repository {
 		tablestype:  NewTableTypeRepository(dbClient),
 		product:     NewProductRepository(dbClient),
 		reservation: NewReservation(dbClient),
+		order:       NewOrderRepository(dbClient),
+		ordertype:   NewOrdersTypeRepository(dbClient),
+		menu:        NewMenuRepository(dbClient),
 	}
 }
 
@@ -46,4 +52,16 @@ func (r *Repository) User() UserRepository {
 
 func (r *Repository) Product() ProductRepository {
 	return r.product
+}
+
+func (r *Repository) Order() OrderRepository {
+	return r.order
+}
+
+func (r *Repository) OrderType() OrdersTypeRepository {
+	return r.ordertype
+}
+
+func (r *Repository) Menu() MenuRepository {
+	return r.menu
 }

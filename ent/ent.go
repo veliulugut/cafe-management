@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cafe-management/ent/menu"
 	"cafe-management/ent/order"
 	"cafe-management/ent/ordertype"
 	"cafe-management/ent/price"
@@ -80,6 +81,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			menu.Table:        menu.ValidColumn,
 			order.Table:       order.ValidColumn,
 			ordertype.Table:   ordertype.ValidColumn,
 			price.Table:       price.ValidColumn,

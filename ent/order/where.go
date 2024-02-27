@@ -89,11 +89,6 @@ func UpdatedAt(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// OrderDate applies equality check predicate on the "order_date" field. It's identical to OrderDateEQ.
-func OrderDate(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOrderDate, v))
-}
-
 // OrderIDEQ applies the EQ predicate on the "order_id" field.
 func OrderIDEQ(v int) predicate.Order {
 	return predicate.Order(sql.FieldEQ(FieldOrderID, v))
@@ -397,46 +392,6 @@ func UpdatedAtLT(v time.Time) predicate.Order {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Order {
 	return predicate.Order(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// OrderDateEQ applies the EQ predicate on the "order_date" field.
-func OrderDateEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldEQ(FieldOrderDate, v))
-}
-
-// OrderDateNEQ applies the NEQ predicate on the "order_date" field.
-func OrderDateNEQ(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNEQ(FieldOrderDate, v))
-}
-
-// OrderDateIn applies the In predicate on the "order_date" field.
-func OrderDateIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldIn(FieldOrderDate, vs...))
-}
-
-// OrderDateNotIn applies the NotIn predicate on the "order_date" field.
-func OrderDateNotIn(vs ...time.Time) predicate.Order {
-	return predicate.Order(sql.FieldNotIn(FieldOrderDate, vs...))
-}
-
-// OrderDateGT applies the GT predicate on the "order_date" field.
-func OrderDateGT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGT(FieldOrderDate, v))
-}
-
-// OrderDateGTE applies the GTE predicate on the "order_date" field.
-func OrderDateGTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldGTE(FieldOrderDate, v))
-}
-
-// OrderDateLT applies the LT predicate on the "order_date" field.
-func OrderDateLT(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLT(FieldOrderDate, v))
-}
-
-// OrderDateLTE applies the LTE predicate on the "order_date" field.
-func OrderDateLTE(v time.Time) predicate.Order {
-	return predicate.Order(sql.FieldLTE(FieldOrderDate, v))
 }
 
 // And groups predicates with the AND operator between them.

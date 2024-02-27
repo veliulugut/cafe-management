@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cafe-management/ent/menu"
 	"cafe-management/ent/order"
 	"cafe-management/ent/price"
 	"cafe-management/ent/product"
@@ -17,6 +18,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	menuFields := schema.Menu{}.Fields()
+	_ = menuFields
+	// menuDescCreatedAt is the schema descriptor for created_at field.
+	menuDescCreatedAt := menuFields[3].Descriptor()
+	// menu.DefaultCreatedAt holds the default value on creation for the created_at field.
+	menu.DefaultCreatedAt = menuDescCreatedAt.Default.(time.Time)
+	// menuDescUpdatedAt is the schema descriptor for updated_at field.
+	menuDescUpdatedAt := menuFields[4].Descriptor()
+	// menu.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	menu.DefaultUpdatedAt = menuDescUpdatedAt.Default.(time.Time)
 	orderFields := schema.Order{}.Fields()
 	_ = orderFields
 	// orderDescCreatedAt is the schema descriptor for created_at field.
@@ -27,10 +38,6 @@ func init() {
 	orderDescUpdatedAt := orderFields[6].Descriptor()
 	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(time.Time)
-	// orderDescOrderDate is the schema descriptor for order_date field.
-	orderDescOrderDate := orderFields[7].Descriptor()
-	// order.DefaultOrderDate holds the default value on creation for the order_date field.
-	order.DefaultOrderDate = orderDescOrderDate.Default.(time.Time)
 	priceFields := schema.Price{}.Fields()
 	_ = priceFields
 	// priceDescCreatedAt is the schema descriptor for created_at field.

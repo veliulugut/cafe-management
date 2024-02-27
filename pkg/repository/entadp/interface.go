@@ -15,6 +15,9 @@ type RepositoryInterface interface {
 	Reservation() ReservationRepository
 	Price() PriceRepository
 	Product() ProductRepository
+	Order() OrderRepository
+	OrderType() OrdersTypeRepository
+	Menu() MenuRepository
 }
 
 type UserRepository interface {
@@ -62,4 +65,26 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, id int, c *dto.Product) error
 	ListProduct(ctx context.Context) ([]*ent.Product, error)
 	GetById(ctx context.Context, id int) (*dto.Product, error)
+}
+
+type OrderRepository interface {
+	CreateOrder(ctx context.Context, c *dto.Order) error
+	DeleteOrder(ctx context.Context, id int) error
+	UpdateOrder(ctx context.Context, id int, c *dto.Order) error
+	ListOrder(ctx context.Context) ([]*ent.Order, error)
+	GetById(ctx context.Context, id int) (*dto.Order, error)
+}
+
+type OrdersTypeRepository interface {
+	CreateOrderType(ctx context.Context, c *dto.OrderType) error
+	DeleteOrderType(ctx context.Context, id int) error
+	UpdateOrderType(ctx context.Context, id int, c *dto.OrderType) error
+}
+
+type MenuRepository interface {
+	CreateMenu(ctx context.Context, c *dto.Menu) error
+	DeleteMenu(ctx context.Context, id int) error
+	UpdateMenu(ctx context.Context, id int, c *dto.Menu) error
+	ListMenu(ctx context.Context) ([]*ent.Menu, error)
+	GetById(ctx context.Context, id int) (*dto.Menu, error)
 }

@@ -154,20 +154,6 @@ func (ou *OrderUpdate) SetNillableUpdatedAt(t *time.Time) *OrderUpdate {
 	return ou
 }
 
-// SetOrderDate sets the "order_date" field.
-func (ou *OrderUpdate) SetOrderDate(t time.Time) *OrderUpdate {
-	ou.mutation.SetOrderDate(t)
-	return ou
-}
-
-// SetNillableOrderDate sets the "order_date" field if the given value is not nil.
-func (ou *OrderUpdate) SetNillableOrderDate(t *time.Time) *OrderUpdate {
-	if t != nil {
-		ou.SetOrderDate(*t)
-	}
-	return ou
-}
-
 // Mutation returns the OrderMutation object of the builder.
 func (ou *OrderUpdate) Mutation() *OrderMutation {
 	return ou.mutation
@@ -241,9 +227,6 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.UpdatedAt(); ok {
 		_spec.SetField(order.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := ou.mutation.OrderDate(); ok {
-		_spec.SetField(order.FieldOrderDate, field.TypeTime, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -391,20 +374,6 @@ func (ouo *OrderUpdateOne) SetNillableUpdatedAt(t *time.Time) *OrderUpdateOne {
 	return ouo
 }
 
-// SetOrderDate sets the "order_date" field.
-func (ouo *OrderUpdateOne) SetOrderDate(t time.Time) *OrderUpdateOne {
-	ouo.mutation.SetOrderDate(t)
-	return ouo
-}
-
-// SetNillableOrderDate sets the "order_date" field if the given value is not nil.
-func (ouo *OrderUpdateOne) SetNillableOrderDate(t *time.Time) *OrderUpdateOne {
-	if t != nil {
-		ouo.SetOrderDate(*t)
-	}
-	return ouo
-}
-
 // Mutation returns the OrderMutation object of the builder.
 func (ouo *OrderUpdateOne) Mutation() *OrderMutation {
 	return ouo.mutation
@@ -508,9 +477,6 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.UpdatedAt(); ok {
 		_spec.SetField(order.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := ouo.mutation.OrderDate(); ok {
-		_spec.SetField(order.FieldOrderDate, field.TypeTime, value)
 	}
 	_node = &Order{config: ouo.config}
 	_spec.Assign = _node.assignValues

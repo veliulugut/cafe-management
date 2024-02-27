@@ -80,20 +80,6 @@ func (oc *OrderCreate) SetNillableUpdatedAt(t *time.Time) *OrderCreate {
 	return oc
 }
 
-// SetOrderDate sets the "order_date" field.
-func (oc *OrderCreate) SetOrderDate(t time.Time) *OrderCreate {
-	oc.mutation.SetOrderDate(t)
-	return oc
-}
-
-// SetNillableOrderDate sets the "order_date" field if the given value is not nil.
-func (oc *OrderCreate) SetNillableOrderDate(t *time.Time) *OrderCreate {
-	if t != nil {
-		oc.SetOrderDate(*t)
-	}
-	return oc
-}
-
 // Mutation returns the OrderMutation object of the builder.
 func (oc *OrderCreate) Mutation() *OrderMutation {
 	return oc.mutation
@@ -137,10 +123,6 @@ func (oc *OrderCreate) defaults() {
 		v := order.DefaultUpdatedAt
 		oc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := oc.mutation.OrderDate(); !ok {
-		v := order.DefaultOrderDate
-		oc.mutation.SetOrderDate(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -165,9 +147,6 @@ func (oc *OrderCreate) check() error {
 	}
 	if _, ok := oc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Order.updated_at"`)}
-	}
-	if _, ok := oc.mutation.OrderDate(); !ok {
-		return &ValidationError{Name: "order_date", err: errors.New(`ent: missing required field "Order.order_date"`)}
 	}
 	return nil
 }
@@ -223,10 +202,6 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.UpdatedAt(); ok {
 		_spec.SetField(order.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := oc.mutation.OrderDate(); ok {
-		_spec.SetField(order.FieldOrderDate, field.TypeTime, value)
-		_node.OrderDate = value
 	}
 	return _node, _spec
 }
@@ -385,18 +360,6 @@ func (u *OrderUpsert) SetUpdatedAt(v time.Time) *OrderUpsert {
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
 func (u *OrderUpsert) UpdateUpdatedAt() *OrderUpsert {
 	u.SetExcluded(order.FieldUpdatedAt)
-	return u
-}
-
-// SetOrderDate sets the "order_date" field.
-func (u *OrderUpsert) SetOrderDate(v time.Time) *OrderUpsert {
-	u.Set(order.FieldOrderDate, v)
-	return u
-}
-
-// UpdateOrderDate sets the "order_date" field to the value that was provided on create.
-func (u *OrderUpsert) UpdateOrderDate() *OrderUpsert {
-	u.SetExcluded(order.FieldOrderDate)
 	return u
 }
 
@@ -563,20 +526,6 @@ func (u *OrderUpsertOne) SetUpdatedAt(v time.Time) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateUpdatedAt() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateUpdatedAt()
-	})
-}
-
-// SetOrderDate sets the "order_date" field.
-func (u *OrderUpsertOne) SetOrderDate(v time.Time) *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOrderDate(v)
-	})
-}
-
-// UpdateOrderDate sets the "order_date" field to the value that was provided on create.
-func (u *OrderUpsertOne) UpdateOrderDate() *OrderUpsertOne {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOrderDate()
 	})
 }
 
@@ -907,20 +856,6 @@ func (u *OrderUpsertBulk) SetUpdatedAt(v time.Time) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateUpdatedAt() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateUpdatedAt()
-	})
-}
-
-// SetOrderDate sets the "order_date" field.
-func (u *OrderUpsertBulk) SetOrderDate(v time.Time) *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.SetOrderDate(v)
-	})
-}
-
-// UpdateOrderDate sets the "order_date" field to the value that was provided on create.
-func (u *OrderUpsertBulk) UpdateOrderDate() *OrderUpsertBulk {
-	return u.Update(func(s *OrderUpsert) {
-		s.UpdateOrderDate()
 	})
 }
 

@@ -22,7 +22,6 @@ func (Order) Fields() []ent.Field {
 		field.String("status"),
 		field.Time("created_at").Default(time.Now().UTC()),
 		field.Time("updated_at").Default(time.Now().UTC()),
-		field.Time("order_date").Default(time.Now().UTC()),
 	}
 }
 

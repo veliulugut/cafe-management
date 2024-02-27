@@ -27,8 +27,6 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldOrderDate holds the string denoting the order_date field in the database.
-	FieldOrderDate = "order_date"
 	// Table holds the table name of the order in the database.
 	Table = "orders"
 )
@@ -43,7 +41,6 @@ var Columns = []string{
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldOrderDate,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -61,8 +58,6 @@ var (
 	DefaultCreatedAt time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt time.Time
-	// DefaultOrderDate holds the default value on creation for the "order_date" field.
-	DefaultOrderDate time.Time
 )
 
 // OrderOption defines the ordering options for the Order queries.
@@ -106,9 +101,4 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByOrderDate orders the results by the order_date field.
-func ByOrderDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrderDate, opts...).ToFunc()
 }
