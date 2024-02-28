@@ -79,6 +79,7 @@ type OrdersTypeRepository interface {
 	CreateOrderType(ctx context.Context, c *dto.OrderType) error
 	DeleteOrderType(ctx context.Context, id int) error
 	UpdateOrderType(ctx context.Context, id int, c *dto.OrderType) error
+	ListOrderType(ctx context.Context) ([]*ent.OrderType, error)
 }
 
 type MenuRepository interface {

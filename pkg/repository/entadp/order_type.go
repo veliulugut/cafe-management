@@ -45,3 +45,12 @@ func (o *OrderType) UpdateOrderType(ctx context.Context, id int, c *dto.OrderTyp
 
 	return nil
 }
+
+func (o *OrderType) ListOrderType(ctx context.Context) ([]*ent.OrderType, error) {
+	orderTypes, err := o.dbClient.OrderType.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("order type / list order type :%w", err)
+	}
+
+	return orderTypes, nil
+}
