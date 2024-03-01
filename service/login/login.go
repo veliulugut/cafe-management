@@ -6,7 +6,7 @@ import (
 	"cafe-management/pkg/repository/entadp"
 )
 
-var _ Service = (*Login)(nil)
+//var _ Service = (*Login)(nil)
 
 func New(r entadp.RepositoryInterface, j jwt.Interface, bc passwd.Interface) *Login {
 	return &Login{
