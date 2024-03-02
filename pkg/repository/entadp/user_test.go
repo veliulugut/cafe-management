@@ -199,3 +199,36 @@ func TestUser_UpdateUser(t *testing.T) {
 		}
 	})
 }
+
+func TestUser_GetByUserName(t *testing.T) {
+	opts := []enttest.Option{
+		enttest.WithOptions(ent.Log(t.Log)),
+	}
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1", opts...)
+	defer client.Close()
+
+	repo := NewUserRepository(client)
+
+	_, err := repo.DbClient.User.Create().
+		SetUserID(1).
+		SetUserName("testadmin").
+		SetFirstName("test").
+		SetLastName("testd").
+		SetPhone("332 111").
+		SetPassword("32123556").
+		SetAvatar("safdsgsf").
+		SetCreatedAt(time.Now()).
+		SetUpdatedAt(time.Now()).
+		Save(context.Background())
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Run("GetByUserName", func(t *testing.T) {
+		_, err := repo.GetByUserName(context.Background(), "testadmin")
+		if err != nil {
+			t.Error(err)
+		}
+	})
+
+}

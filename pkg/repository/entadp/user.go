@@ -2,6 +2,7 @@ package entadp
 
 import (
 	"cafe-management/ent"
+	"cafe-management/ent/user"
 	"cafe-management/pkg/repository/dto"
 	"cafe-management/pkg/repository/helper"
 	"context"
@@ -29,6 +30,7 @@ func (u *User) CreateUser(ctx context.Context, c *dto.User) error {
 		SetUserName(c.UserName).
 		SetPassword(c.Password).
 		SetPhone(c.Phone).
+		SetEmail(c.Email).
 		SetCreatedAt(time.Now()).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)
@@ -65,6 +67,20 @@ func (u *User) GetById(ctx context.Context, id int) (*dto.User, error) {
 	return helper.DbUserTo(user), nil
 }
 
+func (u *User) GetByUserName(ctx context.Context, name string) (*dto.User, error) {
+	var (
+		dbUser *ent.User
+		err    error
+	)
+
+	if dbUser, err = u.DbClient.User.Query().Where(user.UserNameEQ(name)).First(ctx); err != nil {
+		return nil, fmt.Errorf("get user/repository:%w", err)
+	}
+
+	return helper.DbUserTo(dbUser), nil
+
+}
+
 func (u *User) UpdateUser(ctx context.Context, id int, c *dto.User) error {
 	_, err := u.DbClient.User.UpdateOneID(id).
 		SetAvatar(c.Avatar).
@@ -72,6 +88,7 @@ func (u *User) UpdateUser(ctx context.Context, id int, c *dto.User) error {
 		SetLastName(c.LastName).
 		SetUserName(c.UserName).
 		SetPassword(c.Password).
+		SetEmail(c.Email).
 		SetPhone(c.Phone).
 		SetUpdatedAt(time.Now()).
 		Save(ctx)

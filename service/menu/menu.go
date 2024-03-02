@@ -6,6 +6,7 @@ import (
 	"cafe-management/pkg/repository/entadp"
 	"context"
 	"fmt"
+	"time"
 )
 
 var _ ServiceMenu = (*Menu)(nil)
@@ -48,7 +49,25 @@ func (m *Menu) DeleteMenu(ctx context.Context, id int) error {
 }
 
 func (m *Menu) GetById(ctx context.Context, id int) (*MenuModel, error) {
-	panic("unimplemented")
+	var (
+		menu *dto.Menu
+		err  error
+	)
+
+	if menu, err = m.repo.Menu().GetById(ctx, id); err != nil {
+		return nil, fmt.Errorf("menu srv / get menu : %w", err)
+	}
+
+	return &MenuModel{
+		MenuID:       menu.MenuID,
+		Name:         menu.Name,
+		Category:     menu.Category,
+		Price:        menu.Price,
+		Description:  menu.Description,
+		CreatedAt:    time.Now(),
+		MenuImageUrl: menu.MenuImageUrl,
+		UpdatedAt:    time.Now(),
+	}, nil
 }
 
 func (m *Menu) ListMenu(ctx context.Context) ([]*MenuModel, error) {

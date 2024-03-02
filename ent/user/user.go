@@ -23,6 +23,8 @@ const (
 	FieldPassword = "password"
 	// FieldUserName holds the string denoting the user_name field in the database.
 	FieldUserName = "user_name"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldAvatar holds the string denoting the avatar field in the database.
 	FieldAvatar = "avatar"
 	// FieldPhone holds the string denoting the phone field in the database.
@@ -43,6 +45,7 @@ var Columns = []string{
 	FieldLastName,
 	FieldPassword,
 	FieldUserName,
+	FieldEmail,
 	FieldAvatar,
 	FieldPhone,
 	FieldCreatedAt,
@@ -97,6 +100,11 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 // ByUserName orders the results by the user_name field.
 func ByUserName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserName, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
 // ByAvatar orders the results by the avatar field.
