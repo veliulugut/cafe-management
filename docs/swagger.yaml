@@ -1,0 +1,123 @@
+basePath: /v1
+definitions:
+  login.ReqLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  user.CreateUserModel:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  user.UpdateUserModel:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+      user_name:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: veliulugut1@gmail.com
+    name: Veli Ulugut
+  description: cafe-management
+  title: Library API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login
+      parameters:
+      - description: login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/login.ReqLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: login
+      tags:
+      - auth
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: create user
+      parameters:
+      - description: Create a new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateUserModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create user
+      tags:
+      - user
+  /user/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete user by id
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a  user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update user by id
+      tags:
+      - user
+swagger: "2.0"
