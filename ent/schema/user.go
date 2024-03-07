@@ -19,10 +19,11 @@ func (User) Fields() []ent.Field {
 		field.String("first_name"),
 		field.String("last_name"),
 		field.String("password"),
+		field.String("confirm_password"),
 		field.String("user_name").Unique(),
 		field.String("email").Unique(),
-		field.String("avatar"),
-		field.String("phone"),
+		field.String("avatar").Optional(),
+		field.String("phone").Optional(),
 		field.Time("created_at").Default(time.Now().UTC()),
 		field.Time("updated_at").Default(time.Now().UTC()),
 	}

@@ -74,6 +74,11 @@ func Password(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPassword, v))
 }
 
+// ConfirmPassword applies equality check predicate on the "confirm_password" field. It's identical to ConfirmPasswordEQ.
+func ConfirmPassword(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldConfirmPassword, v))
+}
+
 // UserName applies equality check predicate on the "user_name" field. It's identical to UserNameEQ.
 func UserName(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUserName, v))
@@ -339,6 +344,71 @@ func PasswordContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldPassword, v))
 }
 
+// ConfirmPasswordEQ applies the EQ predicate on the "confirm_password" field.
+func ConfirmPasswordEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordNEQ applies the NEQ predicate on the "confirm_password" field.
+func ConfirmPasswordNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordIn applies the In predicate on the "confirm_password" field.
+func ConfirmPasswordIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldConfirmPassword, vs...))
+}
+
+// ConfirmPasswordNotIn applies the NotIn predicate on the "confirm_password" field.
+func ConfirmPasswordNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldConfirmPassword, vs...))
+}
+
+// ConfirmPasswordGT applies the GT predicate on the "confirm_password" field.
+func ConfirmPasswordGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordGTE applies the GTE predicate on the "confirm_password" field.
+func ConfirmPasswordGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordLT applies the LT predicate on the "confirm_password" field.
+func ConfirmPasswordLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordLTE applies the LTE predicate on the "confirm_password" field.
+func ConfirmPasswordLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordContains applies the Contains predicate on the "confirm_password" field.
+func ConfirmPasswordContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordHasPrefix applies the HasPrefix predicate on the "confirm_password" field.
+func ConfirmPasswordHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordHasSuffix applies the HasSuffix predicate on the "confirm_password" field.
+func ConfirmPasswordHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordEqualFold applies the EqualFold predicate on the "confirm_password" field.
+func ConfirmPasswordEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldConfirmPassword, v))
+}
+
+// ConfirmPasswordContainsFold applies the ContainsFold predicate on the "confirm_password" field.
+func ConfirmPasswordContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldConfirmPassword, v))
+}
+
 // UserNameEQ applies the EQ predicate on the "user_name" field.
 func UserNameEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUserName, v))
@@ -524,6 +594,16 @@ func AvatarHasSuffix(v string) predicate.User {
 	return predicate.User(sql.FieldHasSuffix(FieldAvatar, v))
 }
 
+// AvatarIsNil applies the IsNil predicate on the "avatar" field.
+func AvatarIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldAvatar))
+}
+
+// AvatarNotNil applies the NotNil predicate on the "avatar" field.
+func AvatarNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldAvatar))
+}
+
 // AvatarEqualFold applies the EqualFold predicate on the "avatar" field.
 func AvatarEqualFold(v string) predicate.User {
 	return predicate.User(sql.FieldEqualFold(FieldAvatar, v))
@@ -587,6 +667,16 @@ func PhoneHasPrefix(v string) predicate.User {
 // PhoneHasSuffix applies the HasSuffix predicate on the "phone" field.
 func PhoneHasSuffix(v string) predicate.User {
 	return predicate.User(sql.FieldHasSuffix(FieldPhone, v))
+}
+
+// PhoneIsNil applies the IsNil predicate on the "phone" field.
+func PhoneIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldPhone))
+}
+
+// PhoneNotNil applies the NotNil predicate on the "phone" field.
+func PhoneNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldPhone))
 }
 
 // PhoneEqualFold applies the EqualFold predicate on the "phone" field.

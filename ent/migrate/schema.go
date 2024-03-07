@@ -147,10 +147,11 @@ var (
 		{Name: "first_name", Type: field.TypeString},
 		{Name: "last_name", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString},
+		{Name: "confirm_password", Type: field.TypeString},
 		{Name: "user_name", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "avatar", Type: field.TypeString},
-		{Name: "phone", Type: field.TypeString},
+		{Name: "avatar", Type: field.TypeString, Nullable: true},
+		{Name: "phone", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

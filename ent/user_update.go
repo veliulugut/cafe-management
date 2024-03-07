@@ -91,6 +91,20 @@ func (uu *UserUpdate) SetNillablePassword(s *string) *UserUpdate {
 	return uu
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (uu *UserUpdate) SetConfirmPassword(s string) *UserUpdate {
+	uu.mutation.SetConfirmPassword(s)
+	return uu
+}
+
+// SetNillableConfirmPassword sets the "confirm_password" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableConfirmPassword(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetConfirmPassword(*s)
+	}
+	return uu
+}
+
 // SetUserName sets the "user_name" field.
 func (uu *UserUpdate) SetUserName(s string) *UserUpdate {
 	uu.mutation.SetUserName(s)
@@ -133,6 +147,12 @@ func (uu *UserUpdate) SetNillableAvatar(s *string) *UserUpdate {
 	return uu
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (uu *UserUpdate) ClearAvatar() *UserUpdate {
+	uu.mutation.ClearAvatar()
+	return uu
+}
+
 // SetPhone sets the "phone" field.
 func (uu *UserUpdate) SetPhone(s string) *UserUpdate {
 	uu.mutation.SetPhone(s)
@@ -144,6 +164,12 @@ func (uu *UserUpdate) SetNillablePhone(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetPhone(*s)
 	}
+	return uu
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (uu *UserUpdate) ClearPhone() *UserUpdate {
+	uu.mutation.ClearPhone()
 	return uu
 }
 
@@ -231,6 +257,9 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 	}
+	if value, ok := uu.mutation.ConfirmPassword(); ok {
+		_spec.SetField(user.FieldConfirmPassword, field.TypeString, value)
+	}
 	if value, ok := uu.mutation.UserName(); ok {
 		_spec.SetField(user.FieldUserName, field.TypeString, value)
 	}
@@ -240,8 +269,14 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
+	if uu.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
+	}
 	if value, ok := uu.mutation.Phone(); ok {
 		_spec.SetField(user.FieldPhone, field.TypeString, value)
+	}
+	if uu.mutation.PhoneCleared() {
+		_spec.ClearField(user.FieldPhone, field.TypeString)
 	}
 	if value, ok := uu.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
@@ -332,6 +367,20 @@ func (uuo *UserUpdateOne) SetNillablePassword(s *string) *UserUpdateOne {
 	return uuo
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (uuo *UserUpdateOne) SetConfirmPassword(s string) *UserUpdateOne {
+	uuo.mutation.SetConfirmPassword(s)
+	return uuo
+}
+
+// SetNillableConfirmPassword sets the "confirm_password" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableConfirmPassword(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetConfirmPassword(*s)
+	}
+	return uuo
+}
+
 // SetUserName sets the "user_name" field.
 func (uuo *UserUpdateOne) SetUserName(s string) *UserUpdateOne {
 	uuo.mutation.SetUserName(s)
@@ -374,6 +423,12 @@ func (uuo *UserUpdateOne) SetNillableAvatar(s *string) *UserUpdateOne {
 	return uuo
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (uuo *UserUpdateOne) ClearAvatar() *UserUpdateOne {
+	uuo.mutation.ClearAvatar()
+	return uuo
+}
+
 // SetPhone sets the "phone" field.
 func (uuo *UserUpdateOne) SetPhone(s string) *UserUpdateOne {
 	uuo.mutation.SetPhone(s)
@@ -385,6 +440,12 @@ func (uuo *UserUpdateOne) SetNillablePhone(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetPhone(*s)
 	}
+	return uuo
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (uuo *UserUpdateOne) ClearPhone() *UserUpdateOne {
+	uuo.mutation.ClearPhone()
 	return uuo
 }
 
@@ -502,6 +563,9 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 	}
+	if value, ok := uuo.mutation.ConfirmPassword(); ok {
+		_spec.SetField(user.FieldConfirmPassword, field.TypeString, value)
+	}
 	if value, ok := uuo.mutation.UserName(); ok {
 		_spec.SetField(user.FieldUserName, field.TypeString, value)
 	}
@@ -511,8 +575,14 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
+	if uuo.mutation.AvatarCleared() {
+		_spec.ClearField(user.FieldAvatar, field.TypeString)
+	}
 	if value, ok := uuo.mutation.Phone(); ok {
 		_spec.SetField(user.FieldPhone, field.TypeString, value)
+	}
+	if uuo.mutation.PhoneCleared() {
+		_spec.ClearField(user.FieldPhone, field.TypeString)
 	}
 	if value, ok := uuo.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)

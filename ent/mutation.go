@@ -5153,24 +5153,25 @@ func (m *TablesTypeMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	user_id       *int
-	adduser_id    *int
-	first_name    *string
-	last_name     *string
-	password      *string
-	user_name     *string
-	email         *string
-	avatar        *string
-	phone         *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*User, error)
-	predicates    []predicate.User
+	op               Op
+	typ              string
+	id               *int
+	user_id          *int
+	adduser_id       *int
+	first_name       *string
+	last_name        *string
+	password         *string
+	confirm_password *string
+	user_name        *string
+	email            *string
+	avatar           *string
+	phone            *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*User, error)
+	predicates       []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -5435,6 +5436,42 @@ func (m *UserMutation) ResetPassword() {
 	m.password = nil
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (m *UserMutation) SetConfirmPassword(s string) {
+	m.confirm_password = &s
+}
+
+// ConfirmPassword returns the value of the "confirm_password" field in the mutation.
+func (m *UserMutation) ConfirmPassword() (r string, exists bool) {
+	v := m.confirm_password
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConfirmPassword returns the old "confirm_password" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldConfirmPassword(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConfirmPassword is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConfirmPassword requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConfirmPassword: %w", err)
+	}
+	return oldValue.ConfirmPassword, nil
+}
+
+// ResetConfirmPassword resets all changes to the "confirm_password" field.
+func (m *UserMutation) ResetConfirmPassword() {
+	m.confirm_password = nil
+}
+
 // SetUserName sets the "user_name" field.
 func (m *UserMutation) SetUserName(s string) {
 	m.user_name = &s
@@ -5538,9 +5575,22 @@ func (m *UserMutation) OldAvatar(ctx context.Context) (v string, err error) {
 	return oldValue.Avatar, nil
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (m *UserMutation) ClearAvatar() {
+	m.avatar = nil
+	m.clearedFields[user.FieldAvatar] = struct{}{}
+}
+
+// AvatarCleared returns if the "avatar" field was cleared in this mutation.
+func (m *UserMutation) AvatarCleared() bool {
+	_, ok := m.clearedFields[user.FieldAvatar]
+	return ok
+}
+
 // ResetAvatar resets all changes to the "avatar" field.
 func (m *UserMutation) ResetAvatar() {
 	m.avatar = nil
+	delete(m.clearedFields, user.FieldAvatar)
 }
 
 // SetPhone sets the "phone" field.
@@ -5574,9 +5624,22 @@ func (m *UserMutation) OldPhone(ctx context.Context) (v string, err error) {
 	return oldValue.Phone, nil
 }
 
+// ClearPhone clears the value of the "phone" field.
+func (m *UserMutation) ClearPhone() {
+	m.phone = nil
+	m.clearedFields[user.FieldPhone] = struct{}{}
+}
+
+// PhoneCleared returns if the "phone" field was cleared in this mutation.
+func (m *UserMutation) PhoneCleared() bool {
+	_, ok := m.clearedFields[user.FieldPhone]
+	return ok
+}
+
 // ResetPhone resets all changes to the "phone" field.
 func (m *UserMutation) ResetPhone() {
 	m.phone = nil
+	delete(m.clearedFields, user.FieldPhone)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -5685,7 +5748,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.user_id != nil {
 		fields = append(fields, user.FieldUserID)
 	}
@@ -5697,6 +5760,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.password != nil {
 		fields = append(fields, user.FieldPassword)
+	}
+	if m.confirm_password != nil {
+		fields = append(fields, user.FieldConfirmPassword)
 	}
 	if m.user_name != nil {
 		fields = append(fields, user.FieldUserName)
@@ -5732,6 +5798,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.LastName()
 	case user.FieldPassword:
 		return m.Password()
+	case user.FieldConfirmPassword:
+		return m.ConfirmPassword()
 	case user.FieldUserName:
 		return m.UserName()
 	case user.FieldEmail:
@@ -5761,6 +5829,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldLastName(ctx)
 	case user.FieldPassword:
 		return m.OldPassword(ctx)
+	case user.FieldConfirmPassword:
+		return m.OldConfirmPassword(ctx)
 	case user.FieldUserName:
 		return m.OldUserName(ctx)
 	case user.FieldEmail:
@@ -5809,6 +5879,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPassword(v)
+		return nil
+	case user.FieldConfirmPassword:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConfirmPassword(v)
 		return nil
 	case user.FieldUserName:
 		v, ok := value.(string)
@@ -5896,7 +5973,14 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldAvatar) {
+		fields = append(fields, user.FieldAvatar)
+	}
+	if m.FieldCleared(user.FieldPhone) {
+		fields = append(fields, user.FieldPhone)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -5909,6 +5993,14 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldAvatar:
+		m.ClearAvatar()
+		return nil
+	case user.FieldPhone:
+		m.ClearPhone()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -5927,6 +6019,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldPassword:
 		m.ResetPassword()
+		return nil
+	case user.FieldConfirmPassword:
+		m.ResetConfirmPassword()
 		return nil
 	case user.FieldUserName:
 		m.ResetUserName()

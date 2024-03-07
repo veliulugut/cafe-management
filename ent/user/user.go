@@ -21,6 +21,8 @@ const (
 	FieldLastName = "last_name"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldConfirmPassword holds the string denoting the confirm_password field in the database.
+	FieldConfirmPassword = "confirm_password"
 	// FieldUserName holds the string denoting the user_name field in the database.
 	FieldUserName = "user_name"
 	// FieldEmail holds the string denoting the email field in the database.
@@ -44,6 +46,7 @@ var Columns = []string{
 	FieldFirstName,
 	FieldLastName,
 	FieldPassword,
+	FieldConfirmPassword,
 	FieldUserName,
 	FieldEmail,
 	FieldAvatar,
@@ -95,6 +98,11 @@ func ByLastName(opts ...sql.OrderTermOption) OrderOption {
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// ByConfirmPassword orders the results by the confirm_password field.
+func ByConfirmPassword(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldConfirmPassword, opts...).ToFunc()
 }
 
 // ByUserName orders the results by the user_name field.

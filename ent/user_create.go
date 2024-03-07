@@ -46,6 +46,12 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (uc *UserCreate) SetConfirmPassword(s string) *UserCreate {
+	uc.mutation.SetConfirmPassword(s)
+	return uc
+}
+
 // SetUserName sets the "user_name" field.
 func (uc *UserCreate) SetUserName(s string) *UserCreate {
 	uc.mutation.SetUserName(s)
@@ -64,9 +70,25 @@ func (uc *UserCreate) SetAvatar(s string) *UserCreate {
 	return uc
 }
 
+// SetNillableAvatar sets the "avatar" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAvatar(s *string) *UserCreate {
+	if s != nil {
+		uc.SetAvatar(*s)
+	}
+	return uc
+}
+
 // SetPhone sets the "phone" field.
 func (uc *UserCreate) SetPhone(s string) *UserCreate {
 	uc.mutation.SetPhone(s)
+	return uc
+}
+
+// SetNillablePhone sets the "phone" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePhone(s *string) *UserCreate {
+	if s != nil {
+		uc.SetPhone(*s)
+	}
 	return uc
 }
 
@@ -157,17 +179,14 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
 	}
+	if _, ok := uc.mutation.ConfirmPassword(); !ok {
+		return &ValidationError{Name: "confirm_password", err: errors.New(`ent: missing required field "User.confirm_password"`)}
+	}
 	if _, ok := uc.mutation.UserName(); !ok {
 		return &ValidationError{Name: "user_name", err: errors.New(`ent: missing required field "User.user_name"`)}
 	}
 	if _, ok := uc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
-	}
-	if _, ok := uc.mutation.Avatar(); !ok {
-		return &ValidationError{Name: "avatar", err: errors.New(`ent: missing required field "User.avatar"`)}
-	}
-	if _, ok := uc.mutation.Phone(); !ok {
-		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "User.phone"`)}
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
@@ -217,6 +236,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
+	}
+	if value, ok := uc.mutation.ConfirmPassword(); ok {
+		_spec.SetField(user.FieldConfirmPassword, field.TypeString, value)
+		_node.ConfirmPassword = value
 	}
 	if value, ok := uc.mutation.UserName(); ok {
 		_spec.SetField(user.FieldUserName, field.TypeString, value)
@@ -348,6 +371,18 @@ func (u *UserUpsert) UpdatePassword() *UserUpsert {
 	return u
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (u *UserUpsert) SetConfirmPassword(v string) *UserUpsert {
+	u.Set(user.FieldConfirmPassword, v)
+	return u
+}
+
+// UpdateConfirmPassword sets the "confirm_password" field to the value that was provided on create.
+func (u *UserUpsert) UpdateConfirmPassword() *UserUpsert {
+	u.SetExcluded(user.FieldConfirmPassword)
+	return u
+}
+
 // SetUserName sets the "user_name" field.
 func (u *UserUpsert) SetUserName(v string) *UserUpsert {
 	u.Set(user.FieldUserName, v)
@@ -384,6 +419,12 @@ func (u *UserUpsert) UpdateAvatar() *UserUpsert {
 	return u
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (u *UserUpsert) ClearAvatar() *UserUpsert {
+	u.SetNull(user.FieldAvatar)
+	return u
+}
+
 // SetPhone sets the "phone" field.
 func (u *UserUpsert) SetPhone(v string) *UserUpsert {
 	u.Set(user.FieldPhone, v)
@@ -393,6 +434,12 @@ func (u *UserUpsert) SetPhone(v string) *UserUpsert {
 // UpdatePhone sets the "phone" field to the value that was provided on create.
 func (u *UserUpsert) UpdatePhone() *UserUpsert {
 	u.SetExcluded(user.FieldPhone)
+	return u
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (u *UserUpsert) ClearPhone() *UserUpsert {
+	u.SetNull(user.FieldPhone)
 	return u
 }
 
@@ -523,6 +570,20 @@ func (u *UserUpsertOne) UpdatePassword() *UserUpsertOne {
 	})
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (u *UserUpsertOne) SetConfirmPassword(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetConfirmPassword(v)
+	})
+}
+
+// UpdateConfirmPassword sets the "confirm_password" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateConfirmPassword() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateConfirmPassword()
+	})
+}
+
 // SetUserName sets the "user_name" field.
 func (u *UserUpsertOne) SetUserName(v string) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
@@ -565,6 +626,13 @@ func (u *UserUpsertOne) UpdateAvatar() *UserUpsertOne {
 	})
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (u *UserUpsertOne) ClearAvatar() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearAvatar()
+	})
+}
+
 // SetPhone sets the "phone" field.
 func (u *UserUpsertOne) SetPhone(v string) *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
@@ -576,6 +644,13 @@ func (u *UserUpsertOne) SetPhone(v string) *UserUpsertOne {
 func (u *UserUpsertOne) UpdatePhone() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePhone()
+	})
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (u *UserUpsertOne) ClearPhone() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearPhone()
 	})
 }
 
@@ -874,6 +949,20 @@ func (u *UserUpsertBulk) UpdatePassword() *UserUpsertBulk {
 	})
 }
 
+// SetConfirmPassword sets the "confirm_password" field.
+func (u *UserUpsertBulk) SetConfirmPassword(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetConfirmPassword(v)
+	})
+}
+
+// UpdateConfirmPassword sets the "confirm_password" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateConfirmPassword() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateConfirmPassword()
+	})
+}
+
 // SetUserName sets the "user_name" field.
 func (u *UserUpsertBulk) SetUserName(v string) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
@@ -916,6 +1005,13 @@ func (u *UserUpsertBulk) UpdateAvatar() *UserUpsertBulk {
 	})
 }
 
+// ClearAvatar clears the value of the "avatar" field.
+func (u *UserUpsertBulk) ClearAvatar() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearAvatar()
+	})
+}
+
 // SetPhone sets the "phone" field.
 func (u *UserUpsertBulk) SetPhone(v string) *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
@@ -927,6 +1023,13 @@ func (u *UserUpsertBulk) SetPhone(v string) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdatePhone() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdatePhone()
+	})
+}
+
+// ClearPhone clears the value of the "phone" field.
+func (u *UserUpsertBulk) ClearPhone() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearPhone()
 	})
 }
 
