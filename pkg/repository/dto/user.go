@@ -14,14 +14,15 @@ field.Time("created_at").Default(time.Now().UTC()),
 field.Time("updated_at").Default(time.Now().UTC()),
 */
 type User struct {
-	UserID    int       `json:"user_id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Password  string    `json:"password"`
-	UserName  string    `json:"user_name"`
-	Email     string    `json:"email"`
-	Avatar    string    `json:"avatar"`
-	Phone     string    `json:"phone"`
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	UserID          int       `json:"user_id"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	Password        string    `json:"password"`
+	UserName        string    `json:"user_name"`
+	Email           string    `json:"email"`
+	Avatar          string    `json:"avatar"`
+	Phone           string    `json:"phone"`
+	UpdatedAt       time.Time `json:"updated_at"`
+	CreatedAt       time.Time `json:"created_at"`
+	ConfirmPassword string    `json:"confirm_password"`
 }

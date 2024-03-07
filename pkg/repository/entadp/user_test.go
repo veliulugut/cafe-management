@@ -24,26 +24,30 @@ func TestUser_CreateUser(t *testing.T) {
 
 	user := []dto.User{
 		{
-			UserID:    1,
-			FirstName: "elif",
-			LastName:  "test",
-			Password:  "ufo361",
-			UserName:  "tiffaniyelif",
-			Avatar:    "link",
-			Phone:     "222 222 222",
-			UpdatedAt: time.Now(),
-			CreatedAt: time.Now(),
+			UserID:          1,
+			FirstName:       "elif",
+			LastName:        "test",
+			Password:        "ufo361",
+			ConfirmPassword: "ufo361",
+			UserName:        "tiffaniyelif",
+			Email:           "a2asfa@gmail.com",
+			Avatar:          "link",
+			Phone:           "222 222 222",
+			UpdatedAt:       time.Now(),
+			CreatedAt:       time.Now(),
 		},
 		{
-			UserID:    2,
-			FirstName: "asdf",
-			LastName:  "abc oglu",
-			Password:  "asdfghj",
-			UserName:  "johndoe",
-			Avatar:    "link",
-			Phone:     "3131 31 3131",
-			UpdatedAt: time.Now(),
-			CreatedAt: time.Now(),
+			UserID:          2,
+			FirstName:       "asdf",
+			LastName:        "abc oglu",
+			Password:        "asdfghj",
+			ConfirmPassword: "asdfghj",
+			UserName:        "johndoe",
+			Email:           "a@gmail.com",
+			Avatar:          "link",
+			Phone:           "3131 31 3131",
+			UpdatedAt:       time.Now(),
+			CreatedAt:       time.Now(),
 		},
 	}
 
@@ -65,15 +69,17 @@ func TestUser_DeleteUser(t *testing.T) {
 	userRepo := NewUserRepository(client)
 
 	user := dto.User{
-		UserID:    1,
-		FirstName: "john",
-		LastName:  "doe",
-		Password:  "asdfghjk",
-		UserName:  "johndoe31",
-		Avatar:    "link",
-		Phone:     "3131 3131",
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
+		UserID:          1,
+		FirstName:       "john",
+		LastName:        "doe",
+		Password:        "asdfghjk",
+		ConfirmPassword: "asdfghjk",
+		UserName:        "johndoe31",
+		Email:           "a2asfa@gmail.com",
+		Avatar:          "link",
+		Phone:           "3131 3131",
+		UpdatedAt:       time.Now(),
+		CreatedAt:       time.Now(),
 	}
 
 	if err := userRepo.CreateUser(context.Background(), &user); err != nil {
@@ -117,15 +123,17 @@ func TestUser_GetByIdUser(t *testing.T) {
 	repo := NewUserRepository(client)
 
 	user := dto.User{
-		UserID:    1,
-		FirstName: "john",
-		LastName:  "doe",
-		Password:  "asdfghjk",
-		UserName:  "johndoe31",
-		Avatar:    "link",
-		Phone:     "3131 3131",
-		UpdatedAt: time.Now(),
-		CreatedAt: time.Now(),
+		UserID:          1,
+		FirstName:       "john",
+		LastName:        "doe",
+		Password:        "asdfghjk",
+		ConfirmPassword: "asdfghjk",
+		UserName:        "johndoe31",
+		Email:           "a2asfa@gmail.com",
+		Avatar:          "link",
+		Phone:           "3131 3131",
+		UpdatedAt:       time.Now(),
+		CreatedAt:       time.Now(),
 	}
 
 	t.Run("CreateUser", func(t *testing.T) {
@@ -178,6 +186,8 @@ func TestUser_UpdateUser(t *testing.T) {
 		SetLastName("testd").
 		SetPhone("332 111").
 		SetPassword("32123556").
+		SetConfirmPassword("32123556").
+		SetEmail("test@mail").
 		SetAvatar("safdsgsf").
 		SetCreatedAt(time.Now()).
 		SetUpdatedAt(time.Now()).
@@ -187,10 +197,12 @@ func TestUser_UpdateUser(t *testing.T) {
 	}
 
 	userUpdate := dto.User{
-		Password:  "ufo361@",
-		UserName:  "asdg",
-		Phone:     "333 333 333",
-		UpdatedAt: time.Now(),
+		Password:        "ufo361@",
+		ConfirmPassword: "ufo361@",
+		UserName:        "asdg",
+		Phone:           "333 333 333",
+		Email:           "test2@mail",
+		UpdatedAt:       time.Now(),
 	}
 
 	t.Run("UpdateUser", func(t *testing.T) {
@@ -215,7 +227,9 @@ func TestUser_GetByUserName(t *testing.T) {
 		SetFirstName("test").
 		SetLastName("testd").
 		SetPhone("332 111").
+		SetEmail("test@mail").
 		SetPassword("32123556").
+		SetConfirmPassword("32123556").
 		SetAvatar("safdsgsf").
 		SetCreatedAt(time.Now()).
 		SetUpdatedAt(time.Now()).

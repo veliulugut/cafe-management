@@ -30,6 +30,7 @@ func (u *User) CreateUser(ctx context.Context, c *dto.User) error {
 		SetUserName(c.UserName).
 		SetPassword(c.Password).
 		SetPhone(c.Phone).
+		SetConfirmPassword(c.ConfirmPassword).
 		SetEmail(c.Email).
 		SetCreatedAt(time.Now()).
 		SetUpdatedAt(time.Now()).
