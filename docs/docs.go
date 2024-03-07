@@ -49,6 +49,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/register": {
+            "post": {
+                "description": "register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "register",
+                "parameters": [
+                    {
+                        "description": "register",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login.ReqRegister"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
         "/user": {
             "post": {
                 "description": "create user",
@@ -142,6 +173,29 @@ const docTemplate = `{
         "login.ReqLogin": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "login.ReqRegister": {
+            "type": "object",
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -200,7 +254,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/v1",
 	Schemes:          []string{},
-	Title:            "Library API",
+	Title:            "Cafe-Management API",
 	Description:      "cafe-management",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "cafe-management",
-        "title": "Library API",
+        "title": "Cafe-Management API",
         "contact": {
             "name": "Veli Ulugut",
             "email": "veliulugut1@gmail.com"
@@ -39,6 +39,37 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "register",
+                "parameters": [
+                    {
+                        "description": "register",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login.ReqRegister"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
                     }
                 }
             }
@@ -136,6 +167,29 @@
         "login.ReqLogin": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "login.ReqRegister": {
+            "type": "object",
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },

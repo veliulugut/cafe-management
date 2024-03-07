@@ -2,6 +2,21 @@ basePath: /v1
 definitions:
   login.ReqLogin:
     properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  login.ReqRegister:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
       password:
         type: string
       username:
@@ -40,7 +55,7 @@ info:
     email: veliulugut1@gmail.com
     name: Veli Ulugut
   description: cafe-management
-  title: Library API
+  title: Cafe-Management API
   version: "1.0"
 paths:
   /login:
@@ -61,6 +76,26 @@ paths:
         "200":
           description: OK
       summary: login
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: register
+      parameters:
+      - description: register
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/login.ReqRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: register
       tags:
       - auth
   /user:
