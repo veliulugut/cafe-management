@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-// @title          Library API
+// @title          Cafe-Management API
 // @version         1.0
 // @description     cafe-management
 // @contact.name   Veli Ulugut
