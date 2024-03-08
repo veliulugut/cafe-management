@@ -2,6 +2,7 @@ package server
 
 import (
 	"cafe-management/cmd/api/handler/v1/login"
+	"cafe-management/cmd/api/handler/v1/menu"
 	"cafe-management/cmd/api/handler/v1/user"
 	"cafe-management/cmd/api/middlewares/auth"
 	"cafe-management/ent"
@@ -28,6 +29,7 @@ type Server struct {
 type Handlers struct {
 	user  user.Handler
 	login login.Handler
+	menu  menu.Handler
 }
 
 func (s *Server) Init() error {
