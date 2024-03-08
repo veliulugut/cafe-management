@@ -25,8 +25,8 @@ type Login struct {
 	bc   passwd.Interface
 }
 
-func (l *Login) Login(ctx context.Context, username, password string) (string, error) {
-	user, err := l.repo.User().GetByUserName(ctx, username)
+func (l *Login) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := l.repo.User().GetByUserEmail(ctx, email)
 	if err != nil {
 		return "", fmt.Errorf("login :%w", err)
 	}
