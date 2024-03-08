@@ -22,6 +22,61 @@ definitions:
       username:
         type: string
     type: object
+  menu.CreateMenuModel:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      menu_id:
+        type: integer
+      menu_image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  menu.MenuModel:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      menu_id:
+        type: integer
+      menu_image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  menu.UpdateMenuModel:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      menu_id:
+        type: integer
+      menu_image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
   user.CreateUserModel:
     properties:
       confirm_password:
@@ -42,6 +97,19 @@ definitions:
       phone:
         type: string
       updated_at:
+        type: string
+      user_name:
+        type: string
+    type: object
+  user.UserModel:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      phone:
         type: string
       user_name:
         type: string
@@ -78,6 +146,104 @@ paths:
       summary: login
       tags:
       - auth
+  /menu:
+    get:
+      consumes:
+      - application/json
+      description: get all menu
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/menu.MenuModel'
+      summary: list all menu
+      tags:
+      - menu
+    post:
+      consumes:
+      - application/json
+      description: create menu
+      parameters:
+      - description: Create a new menu
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/menu.CreateMenuModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create menu
+      tags:
+      - menu
+  /menu/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete menu by id
+      tags:
+      - menu
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a  menu
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/menu.UpdateMenuModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update menu by id
+      tags:
+      - menu
+  /menu/get/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/menu.MenuModel'
+      security:
+      - ApiKeyAuth: []
+      summary: get menu by id
+      tags:
+      - menu
   /register:
     post:
       consumes:
@@ -99,6 +265,20 @@ paths:
       tags:
       - auth
   /user:
+    get:
+      consumes:
+      - application/json
+      description: get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/user.UserModel'
+      summary: list all users
+      tags:
+      - user
     post:
       consumes:
       - application/json
@@ -153,6 +333,53 @@ paths:
         "204":
           description: No Content
       summary: update user by id
+      tags:
+      - user
+  /user/{name}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/user.UserModel'
+      summary: get user by name
+      tags:
+      - user
+  /user/get/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/user.UserModel'
+      security:
+      - ApiKeyAuth: []
+      summary: get user by id
       tags:
       - user
 swagger: "2.0"
