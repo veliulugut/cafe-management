@@ -75,11 +75,24 @@ func (u *User) GetByUserName(ctx context.Context, name string) (*dto.User, error
 	)
 
 	if dbUser, err = u.DbClient.User.Query().Where(user.UserNameEQ(name)).First(ctx); err != nil {
-		return nil, fmt.Errorf("get user/repository:%w", err)
+		return nil, fmt.Errorf("get by user name /repository:%w", err)
 	}
 
 	return helper.DbUserTo(dbUser), nil
 
+}
+
+func (u *User) GetByUserEmail(ctx context.Context, email string) (*dto.User, error) {
+	var (
+		dbUser *ent.User
+		err    error
+	)
+
+	if dbUser, err = u.DbClient.User.Query().Where(user.EmailEQ(email)).First(ctx); err != nil {
+		return nil, fmt.Errorf("get user by user email/repository:%w", err)
+	}
+
+	return helper.DbUserTo(dbUser), nil
 }
 
 func (u *User) UpdateUser(ctx context.Context, id int, c *dto.User) error {

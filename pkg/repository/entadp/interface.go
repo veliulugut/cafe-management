@@ -27,6 +27,7 @@ type UserRepository interface {
 	GetById(ctx context.Context, id int) (*dto.User, error)
 	ListUser(ctx context.Context) ([]*ent.User, error)
 	GetByUserName(ctx context.Context, name string) (*dto.User, error)
+	GetByUserEmail(ctx context.Context, email string) (*dto.User, error)
 }
 
 type TablesRepository interface {

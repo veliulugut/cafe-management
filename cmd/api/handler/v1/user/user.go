@@ -79,16 +79,81 @@ func (u *User) DeleteUser(c *gin.Context) {
 
 }
 
+// GetById godoc
+// @Summary get user by id
+// @Schemes
+// @Description
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id   path int true "id"
+// @Success 200 {object} user.UserModel "ok"
+// @Router /user/get/{id} [get]
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
 func (u *User) GetById(c *gin.Context) {
-	panic("unimplemented")
+	idParam := c.Param("id")
+
+	var (
+		id  int64
+		err error
+	)
+
+	if id, err = strconv.ParseInt(idParam, 10, 64); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var um *user.UserModel
+
+	if um, err = u.userService.GetById(c.Request.Context(), int(id)); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, um)
 }
 
+// GetByUserName godoc
+// @Summary get user by name
+// @Schemes
+// @Description
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param name   path string true "name"
+// @Success 204 {object} user.UserModel
+// @Router /user/{name} [get]
 func (u *User) GetByUserName(c *gin.Context) {
-	panic("unimplemented")
+	name := c.Param("name")
+
+	names, err := u.userService.GetByUserName(c.Request.Context(), name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, names)
+
 }
 
+// ListUser godoc
+// @Summary list all users
+// @Description get all users
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} user.UserModel "ok"
+// @Router /user [get]
 func (u *User) ListUser(c *gin.Context) {
-	panic("unimplemented")
+
+	ums, err := u.userService.ListUser(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ums)
 }
 
 // UpdateUser godoc
