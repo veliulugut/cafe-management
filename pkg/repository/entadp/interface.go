@@ -18,6 +18,7 @@ type RepositoryInterface interface {
 	Order() OrderRepository
 	OrderType() OrdersTypeRepository
 	Menu() MenuRepository
+	QRCode() QRCodeRepository
 }
 
 type UserRepository interface {
@@ -90,4 +91,11 @@ type MenuRepository interface {
 	UpdateMenu(ctx context.Context, id int, c *dto.Menu) error
 	ListMenu(ctx context.Context) ([]*ent.Menu, error)
 	GetById(ctx context.Context, id int) (*dto.Menu, error)
+}
+
+type QRCodeRepository interface {
+	CreateQRCode(ctx context.Context, url string, image []byte) error
+	UpdateQRCode(ctx context.Context, id int, c *dto.QRCode) error
+	DeleteQRCode(ctx context.Context, id int) error
+	ListQRCode(ctx context.Context) ([]*ent.QrCode, error)
 }

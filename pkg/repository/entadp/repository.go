@@ -14,6 +14,7 @@ type Repository struct {
 	order       OrderRepository
 	ordertype   OrdersTypeRepository
 	menu        MenuRepository
+	qrcode      QRCodeRepository
 }
 
 func NewRepository(dbClient *ent.Client) *Repository {
@@ -27,6 +28,7 @@ func NewRepository(dbClient *ent.Client) *Repository {
 		order:       NewOrderRepository(dbClient),
 		ordertype:   NewOrdersTypeRepository(dbClient),
 		menu:        NewMenuRepository(dbClient),
+		qrcode:      NewQRCodeRepository(dbClient),
 	}
 }
 
@@ -64,4 +66,8 @@ func (r *Repository) OrderType() OrdersTypeRepository {
 
 func (r *Repository) Menu() MenuRepository {
 	return r.menu
+}
+
+func (r *Repository) QRCode() QRCodeRepository {
+	return r.qrcode
 }
