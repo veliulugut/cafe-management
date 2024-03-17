@@ -3,6 +3,7 @@ package server
 import (
 	loginhnd "cafe-management/cmd/api/handler/v1/login"
 	menuhnd "cafe-management/cmd/api/handler/v1/menu"
+	qrhnd "cafe-management/cmd/api/handler/v1/qrcode"
 	userhnd "cafe-management/cmd/api/handler/v1/user"
 	"cafe-management/cmd/api/middlewares/auth"
 	_ "cafe-management/docs"
@@ -12,6 +13,7 @@ import (
 	"cafe-management/pkg/repository/entadp"
 	loginsrv "cafe-management/service/login"
 	menusrv "cafe-management/service/menu"
+	qrsrv "cafe-management/service/qrcode"
 	usersrv "cafe-management/service/user"
 	"context"
 	"fmt"
@@ -66,10 +68,12 @@ func (s *Server) initHandlers() error {
 	userService := usersrv.New(repo, bc)
 	loginService := loginsrv.New(repo, j, bc)
 	menuService := menusrv.New(repo)
+	qrService := qrsrv.New(repo)
 
 	//handlers
 	s.hnd.user = userhnd.NewUser(userService)
 	s.hnd.login = loginhnd.New(loginService)
 	s.hnd.menu = menuhnd.NewMenu(menuService)
+	s.hnd.qrcode = qrhnd.New(qrService)
 	return nil
 }

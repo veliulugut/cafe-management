@@ -4,6 +4,8 @@ func (s *Server) linkRoutes() {
 	v1Grp := s.router.Group("/v1")
 	v1Grp.POST("/login", s.hnd.login.Login)
 	v1Grp.POST("/register", s.hnd.login.Register)
+	v1Grp.POST("/qrcode", s.hnd.qrcode.GenerateQRCode)
+	v1Grp.GET("/qrcode", s.hnd.qrcode.ListQRCode)
 
 	adminGrp := v1Grp.Group("")
 	adminGrp.Use(s.mw.Check())
