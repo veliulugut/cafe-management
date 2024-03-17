@@ -16,6 +16,7 @@ import (
 	"cafe-management/ent/ordertype"
 	"cafe-management/ent/price"
 	"cafe-management/ent/product"
+	"cafe-management/ent/qrcode"
 	"cafe-management/ent/reservation"
 	"cafe-management/ent/tables"
 	"cafe-management/ent/tables_type"
@@ -44,6 +45,8 @@ type Client struct {
 	Price *PriceClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
+	// QrCode is the client for interacting with the QrCode builders.
+	QrCode *QrCodeClient
 	// Reservation is the client for interacting with the Reservation builders.
 	Reservation *ReservationClient
 	// Tables is the client for interacting with the Tables builders.
@@ -68,6 +71,7 @@ func (c *Client) init() {
 	c.OrderType = NewOrderTypeClient(c.config)
 	c.Price = NewPriceClient(c.config)
 	c.Product = NewProductClient(c.config)
+	c.QrCode = NewQrCodeClient(c.config)
 	c.Reservation = NewReservationClient(c.config)
 	c.Tables = NewTablesClient(c.config)
 	c.Tables_type = NewTablesTypeClient(c.config)
@@ -169,6 +173,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		OrderType:   NewOrderTypeClient(cfg),
 		Price:       NewPriceClient(cfg),
 		Product:     NewProductClient(cfg),
+		QrCode:      NewQrCodeClient(cfg),
 		Reservation: NewReservationClient(cfg),
 		Tables:      NewTablesClient(cfg),
 		Tables_type: NewTablesTypeClient(cfg),
@@ -197,6 +202,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		OrderType:   NewOrderTypeClient(cfg),
 		Price:       NewPriceClient(cfg),
 		Product:     NewProductClient(cfg),
+		QrCode:      NewQrCodeClient(cfg),
 		Reservation: NewReservationClient(cfg),
 		Tables:      NewTablesClient(cfg),
 		Tables_type: NewTablesTypeClient(cfg),
@@ -230,8 +236,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Menu, c.Order, c.OrderType, c.Price, c.Product, c.Reservation, c.Tables,
-		c.Tables_type, c.User,
+		c.Menu, c.Order, c.OrderType, c.Price, c.Product, c.QrCode, c.Reservation,
+		c.Tables, c.Tables_type, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -241,8 +247,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Menu, c.Order, c.OrderType, c.Price, c.Product, c.Reservation, c.Tables,
-		c.Tables_type, c.User,
+		c.Menu, c.Order, c.OrderType, c.Price, c.Product, c.QrCode, c.Reservation,
+		c.Tables, c.Tables_type, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -261,6 +267,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Price.mutate(ctx, m)
 	case *ProductMutation:
 		return c.Product.mutate(ctx, m)
+	case *QrCodeMutation:
+		return c.QrCode.mutate(ctx, m)
 	case *ReservationMutation:
 		return c.Reservation.mutate(ctx, m)
 	case *TablesMutation:
@@ -939,6 +947,139 @@ func (c *ProductClient) mutate(ctx context.Context, m *ProductMutation) (Value, 
 	}
 }
 
+// QrCodeClient is a client for the QrCode schema.
+type QrCodeClient struct {
+	config
+}
+
+// NewQrCodeClient returns a client for the QrCode from the given config.
+func NewQrCodeClient(c config) *QrCodeClient {
+	return &QrCodeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `qrcode.Hooks(f(g(h())))`.
+func (c *QrCodeClient) Use(hooks ...Hook) {
+	c.hooks.QrCode = append(c.hooks.QrCode, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `qrcode.Intercept(f(g(h())))`.
+func (c *QrCodeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.QrCode = append(c.inters.QrCode, interceptors...)
+}
+
+// Create returns a builder for creating a QrCode entity.
+func (c *QrCodeClient) Create() *QrCodeCreate {
+	mutation := newQrCodeMutation(c.config, OpCreate)
+	return &QrCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of QrCode entities.
+func (c *QrCodeClient) CreateBulk(builders ...*QrCodeCreate) *QrCodeCreateBulk {
+	return &QrCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *QrCodeClient) MapCreateBulk(slice any, setFunc func(*QrCodeCreate, int)) *QrCodeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &QrCodeCreateBulk{err: fmt.Errorf("calling to QrCodeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*QrCodeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &QrCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for QrCode.
+func (c *QrCodeClient) Update() *QrCodeUpdate {
+	mutation := newQrCodeMutation(c.config, OpUpdate)
+	return &QrCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *QrCodeClient) UpdateOne(qc *QrCode) *QrCodeUpdateOne {
+	mutation := newQrCodeMutation(c.config, OpUpdateOne, withQrCode(qc))
+	return &QrCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *QrCodeClient) UpdateOneID(id int) *QrCodeUpdateOne {
+	mutation := newQrCodeMutation(c.config, OpUpdateOne, withQrCodeID(id))
+	return &QrCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for QrCode.
+func (c *QrCodeClient) Delete() *QrCodeDelete {
+	mutation := newQrCodeMutation(c.config, OpDelete)
+	return &QrCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *QrCodeClient) DeleteOne(qc *QrCode) *QrCodeDeleteOne {
+	return c.DeleteOneID(qc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *QrCodeClient) DeleteOneID(id int) *QrCodeDeleteOne {
+	builder := c.Delete().Where(qrcode.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &QrCodeDeleteOne{builder}
+}
+
+// Query returns a query builder for QrCode.
+func (c *QrCodeClient) Query() *QrCodeQuery {
+	return &QrCodeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeQrCode},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a QrCode entity by its id.
+func (c *QrCodeClient) Get(ctx context.Context, id int) (*QrCode, error) {
+	return c.Query().Where(qrcode.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *QrCodeClient) GetX(ctx context.Context, id int) *QrCode {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *QrCodeClient) Hooks() []Hook {
+	return c.hooks.QrCode
+}
+
+// Interceptors returns the client interceptors.
+func (c *QrCodeClient) Interceptors() []Interceptor {
+	return c.inters.QrCode
+}
+
+func (c *QrCodeClient) mutate(ctx context.Context, m *QrCodeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&QrCodeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&QrCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&QrCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&QrCodeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown QrCode mutation op: %q", m.Op())
+	}
+}
+
 // ReservationClient is a client for the Reservation schema.
 type ReservationClient struct {
 	config
@@ -1490,12 +1631,12 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Menu, Order, OrderType, Price, Product, Reservation, Tables, Tables_type,
-		User []ent.Hook
+		Menu, Order, OrderType, Price, Product, QrCode, Reservation, Tables,
+		Tables_type, User []ent.Hook
 	}
 	inters struct {
-		Menu, Order, OrderType, Price, Product, Reservation, Tables, Tables_type,
-		User []ent.Interceptor
+		Menu, Order, OrderType, Price, Product, QrCode, Reservation, Tables,
+		Tables_type, User []ent.Interceptor
 	}
 )
 

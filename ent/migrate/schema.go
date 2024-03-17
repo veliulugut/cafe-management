@@ -85,6 +85,18 @@ var (
 		Columns:    ProductsColumns,
 		PrimaryKey: []*schema.Column{ProductsColumns[0]},
 	}
+	// QrCodesColumns holds the columns for the "qr_codes" table.
+	QrCodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "url", Type: field.TypeString, Unique: true},
+		{Name: "image", Type: field.TypeString},
+	}
+	// QrCodesTable holds the schema information for the "qr_codes" table.
+	QrCodesTable = &schema.Table{
+		Name:       "qr_codes",
+		Columns:    QrCodesColumns,
+		PrimaryKey: []*schema.Column{QrCodesColumns[0]},
+	}
 	// ReservationsColumns holds the columns for the "reservations" table.
 	ReservationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -168,6 +180,7 @@ var (
 		OrderTypesTable,
 		PricesTable,
 		ProductsTable,
+		QrCodesTable,
 		ReservationsTable,
 		TablesTable,
 		TablesTypesTable,

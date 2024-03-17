@@ -68,6 +68,18 @@ func (f ProductFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProductMutation", m)
 }
 
+// The QrCodeFunc type is an adapter to allow the use of ordinary
+// function as QrCode mutator.
+type QrCodeFunc func(context.Context, *ent.QrCodeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QrCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QrCodeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QrCodeMutation", m)
+}
+
 // The ReservationFunc type is an adapter to allow the use of ordinary
 // function as Reservation mutator.
 type ReservationFunc func(context.Context, *ent.ReservationMutation) (ent.Value, error)

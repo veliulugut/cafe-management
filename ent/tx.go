@@ -24,6 +24,8 @@ type Tx struct {
 	Price *PriceClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
+	// QrCode is the client for interacting with the QrCode builders.
+	QrCode *QrCodeClient
 	// Reservation is the client for interacting with the Reservation builders.
 	Reservation *ReservationClient
 	// Tables is the client for interacting with the Tables builders.
@@ -168,6 +170,7 @@ func (tx *Tx) init() {
 	tx.OrderType = NewOrderTypeClient(tx.config)
 	tx.Price = NewPriceClient(tx.config)
 	tx.Product = NewProductClient(tx.config)
+	tx.QrCode = NewQrCodeClient(tx.config)
 	tx.Reservation = NewReservationClient(tx.config)
 	tx.Tables = NewTablesClient(tx.config)
 	tx.Tables_type = NewTablesTypeClient(tx.config)
