@@ -30,6 +30,8 @@ type Menu struct {
 // @Param user body menu.CreateMenuModel true "Create a new menu"
 // @Success 201
 // @Router /menu [post]
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
 func (m *Menu) CreateMenu(c *gin.Context) {
 	var (
 		req menu.CreateMenuModel
@@ -57,6 +59,8 @@ func (m *Menu) CreateMenu(c *gin.Context) {
 // @Param id   path int true "id"
 // @Success 204
 // @Router /menu/{id} [delete]
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
 func (m *Menu) DeleteMenu(c *gin.Context) {
 	idParam := c.Param("id")
 
@@ -121,6 +125,8 @@ func (m *Menu) GetById(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} menu.MenuModel "ok"
 // @Router /menu [get]
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
 func (m *Menu) ListMenu(c *gin.Context) {
 	list, err := m.menuService.ListMenu(c.Request.Context())
 	if err != nil {
@@ -141,6 +147,8 @@ func (m *Menu) ListMenu(c *gin.Context) {
 // @Param id   path int true "id"
 // @Success 204
 // @Router /menu/{id} [post]
+// @Security ApiKeyAuth
+// @param Authorization header string true "Authorization"
 func (m *Menu) UpdateMenu(c *gin.Context) {
 	idParam := c.Param("id")
 
