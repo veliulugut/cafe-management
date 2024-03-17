@@ -27,6 +27,7 @@ definitions:
       category:
         type: string
       created_at:
+        example: "2006-01-02T15:04:05Z"
         type: string
       description:
         type: string
@@ -38,8 +39,6 @@ definitions:
         type: string
       price:
         type: number
-      updated_at:
-        type: string
     type: object
   menu.MenuModel:
     properties:
@@ -75,6 +74,34 @@ definitions:
       price:
         type: number
       updated_at:
+        type: string
+    type: object
+  price.CreatePriceModel:
+    properties:
+      price:
+        type: number
+      price_name:
+        type: string
+    type: object
+  price.PriceModel:
+    properties:
+      price:
+        type: number
+      price_name:
+        type: string
+    type: object
+  price.UpdatePriceModel:
+    properties:
+      price:
+        type: number
+      price_name:
+        type: string
+    type: object
+  qrcode.CreateQrCodeModel:
+    properties:
+      image:
+        type: string
+      url:
         type: string
     type: object
   user.CreateUserModel:
@@ -151,6 +178,12 @@ paths:
       consumes:
       - application/json
       description: get all menu
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -158,6 +191,8 @@ paths:
           description: ok
           schema:
             $ref: '#/definitions/menu.MenuModel'
+      security:
+      - ApiKeyAuth: []
       summary: list all menu
       tags:
       - menu
@@ -172,11 +207,18 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/menu.CreateMenuModel'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "201":
           description: Created
+      security:
+      - ApiKeyAuth: []
       summary: create menu
       tags:
       - menu
@@ -209,11 +251,18 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "204":
           description: No Content
+      security:
+      - ApiKeyAuth: []
       summary: update menu by id
       tags:
       - menu
@@ -244,6 +293,122 @@ paths:
       summary: get menu by id
       tags:
       - menu
+  /price:
+    get:
+      consumes:
+      - application/json
+      description: get all price
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/price.PriceModel'
+      summary: list all price
+      tags:
+      - price
+    post:
+      consumes:
+      - application/json
+      description: create price
+      parameters:
+      - description: Create a new price
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/price.CreatePriceModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create price
+      tags:
+      - price
+  /price/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete price by id
+      tags:
+      - price
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a price
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/price.UpdatePriceModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update price by id
+      tags:
+      - price
+  /qrcode:
+    get:
+      consumes:
+      - application/json
+      description: Get all QR codes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: List all QR codes
+      tags:
+      - qrcode
+    post:
+      consumes:
+      - application/json
+      description: Generate a new QR code
+      parameters:
+      - description: Generate a new qr code
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/qrcode.CreateQrCodeModel'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - image/png
+      responses:
+        "201":
+          description: QR code image
+          schema:
+            type: file
+      security:
+      - ApiKeyAuth: []
+      summary: Generate QR Code
+      tags:
+      - qrcode
   /register:
     post:
       consumes:

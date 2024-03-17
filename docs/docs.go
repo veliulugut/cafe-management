@@ -51,6 +51,11 @@ const docTemplate = `{
         },
         "/menu": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get all menu",
                 "consumes": [
                     "application/json"
@@ -62,6 +67,15 @@ const docTemplate = `{
                     "menu"
                 ],
                 "summary": "list all menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -72,6 +86,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "create menu",
                 "consumes": [
                     "application/json"
@@ -92,6 +111,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/menu.CreateMenuModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -146,6 +172,11 @@ const docTemplate = `{
         },
         "/menu/{id}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -172,6 +203,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -197,6 +235,185 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/price": {
+            "get": {
+                "description": "get all price",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "price"
+                ],
+                "summary": "list all price",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/price.PriceModel"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create price",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "price"
+                ],
+                "summary": "create price",
+                "parameters": [
+                    {
+                        "description": "Create a new price",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/price.CreatePriceModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/price/{id}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "price"
+                ],
+                "summary": "update price by id",
+                "parameters": [
+                    {
+                        "description": "Update a price",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/price.UpdatePriceModel"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "price"
+                ],
+                "summary": "delete price by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/qrcode": {
+            "get": {
+                "description": "Get all QR codes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "qrcode"
+                ],
+                "summary": "List all QR codes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Generate a new QR code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "image/png"
+                ],
+                "tags": [
+                    "qrcode"
+                ],
+                "summary": "Generate QR Code",
+                "parameters": [
+                    {
+                        "description": "Generate a new qr code",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/qrcode.CreateQrCodeModel"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "QR code image",
+                        "schema": {
+                            "type": "file"
+                        }
                     }
                 }
             }
@@ -458,7 +675,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05Z"
                 },
                 "description": {
                     "type": "string"
@@ -474,9 +692,6 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "number"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -531,6 +746,50 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "price.CreatePriceModel": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "price_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "price.PriceModel": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "price_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "price.UpdatePriceModel": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "price_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "qrcode.CreateQrCodeModel": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }
