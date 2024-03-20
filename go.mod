@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.12.5
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-sql-driver/mysql v1.8.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/mattn/go-sqlite3 v1.14.20
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
@@ -18,6 +19,7 @@ require (
 
 require (
 	ariga.io/atlas v0.18.0 // indirect
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
