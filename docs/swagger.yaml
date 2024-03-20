@@ -76,6 +76,27 @@ definitions:
       updated_at:
         type: string
     type: object
+  ordertype.CreateOrderTypeModel:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  ordertype.ListOrderType:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  ordertype.UpdateOrderType:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   price.CreatePriceModel:
     properties:
       price:
@@ -97,12 +118,98 @@ definitions:
       price_name:
         type: string
     type: object
+  product.CreateProductModel:
+    properties:
+      description:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      product_type:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  product.ProductModel:
+    properties:
+      description:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      product_type:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  product.UpdateProductModel:
+    properties:
+      description:
+        type: string
+      price:
+        type: number
+      product_name:
+        type: string
+      product_type:
+        type: string
+      quantity:
+        type: integer
+    type: object
   qrcode.CreateQrCodeModel:
     properties:
       image:
         type: string
       url:
         type: string
+    type: object
+  tables.CreateTableModel:
+    properties:
+      description:
+        type: string
+      number_of_guests:
+        type: integer
+      table_number:
+        type: integer
+      table_type:
+        type: string
+    type: object
+  tables.TableModel:
+    properties:
+      description:
+        type: string
+      number_of_guests:
+        type: integer
+      table_number:
+        type: integer
+      table_type:
+        type: string
+    type: object
+  tables.UpdateTableModel:
+    properties:
+      description:
+        type: string
+      number_of_guests:
+        type: integer
+      table_number:
+        type: integer
+      table_type:
+        type: string
+    type: object
+  tablestype.CreateTableTypeModel:
+    properties:
+      name:
+        type: string
+      tables_id:
+        type: integer
+    type: object
+  tablestype.UpdateTableTypeModel:
+    properties:
+      name:
+        type: string
+      tables_id:
+        type: integer
     type: object
   user.CreateUserModel:
     properties:
@@ -230,9 +337,16 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "204":
           description: No Content
+      security:
+      - ApiKeyAuth: []
       summary: delete menu by id
       tags:
       - menu
@@ -293,6 +407,77 @@ paths:
       summary: get menu by id
       tags:
       - menu
+  /ordertype:
+    get:
+      consumes:
+      - application/json
+      description: get all ta
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/ordertype.ListOrderType'
+      summary: list all ordertype
+      tags:
+      - order type
+    post:
+      consumes:
+      - application/json
+      description: create order type
+      parameters:
+      - description: Create a new order type
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/ordertype.CreateOrderTypeModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create a new order type
+      tags:
+      - order type
+  /ordertype/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete order type by id
+      tags:
+      - order type
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a order type
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/ordertype.UpdateOrderType'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update order type by id
+      tags:
+      - order type
   /price:
     get:
       consumes:
@@ -364,6 +549,104 @@ paths:
       summary: update price by id
       tags:
       - price
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: get all product
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/product.ProductModel'
+      summary: list all product
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      description: create product
+      parameters:
+      - description: Create a new product
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/product.CreateProductModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create product
+      tags:
+      - product
+  /product/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete product by id
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a product
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/product.UpdateProductModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update product by id
+      tags:
+      - product
+  /product/get/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/product.ProductModel'
+      security:
+      - ApiKeyAuth: []
+      summary: get product by id
+      tags:
+      - product
   /qrcode:
     get:
       consumes:
@@ -429,6 +712,134 @@ paths:
       summary: register
       tags:
       - auth
+  /table:
+    get:
+      consumes:
+      - application/json
+      description: get all table
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/tables.TableModel'
+      summary: list all table
+      tags:
+      - table
+    post:
+      consumes:
+      - application/json
+      description: create table
+      parameters:
+      - description: Create a new table
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/tables.CreateTableModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create a new table
+      tags:
+      - table
+  /table/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete table by id
+      tags:
+      - table
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a table
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/tables.UpdateTableModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update table by id
+      tags:
+      - table
+  /tabletype:
+    post:
+      consumes:
+      - application/json
+      description: create table type
+      parameters:
+      - description: Create a new table
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/tablestype.CreateTableTypeModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create a new table type
+      tags:
+      - table type
+  /tabletype/{id}:
+    delete:
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+      summary: delete table type by id
+      tags:
+      - table type
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Update a table
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/tablestype.UpdateTableTypeModel'
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: update table type by id
+      tags:
+      - table type
   /user:
     get:
       consumes:
